@@ -1,5 +1,5 @@
 # token types
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from enum import Enum
 
 
