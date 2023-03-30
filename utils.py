@@ -28,4 +28,4 @@ def get_token_type(char):
 
 
 def print_short_comment(comment):
-    return comment[:7] + '...' if len(comment) > 7 else comment
+    return comment[:4] + '...' if len(comment) > 7 else comment
