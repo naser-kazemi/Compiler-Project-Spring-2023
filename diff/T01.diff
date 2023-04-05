@@ -1,0 +1,76 @@
+Only in PA1_testcases/T01: input.txt
+diff -r output/T01/lexical_errors.txt PA1_testcases/T01/lexical_errors.txt
+1,5c1,5
+< 7.	(3d, Invalid number) 
+< 9.	(cd!, Invalid input) 
+< 11.	(*/, Unmatched comment) 
+< 14.	(@, Invalid input) 
+< 16.	(/* comm..., Unclosed comment) 
+---
+> 7.	(3d, Invalid number) 
+> 9.	(cd!, Invalid input) 
+> 11.	(*/, Unmatched comment) 
+> 14.	(@, Invalid input) 
+> 16.	(/* comm..., Unclosed comment) 
+diff -r output/T01/symbol_table.txt PA1_testcases/T01/symbol_table.txt
+1,13c1,13
+< 1.	break
+< 2.	else
+< 3.	if
+< 4.	int
+< 5.	repeat
+< 6.	return
+< 7.	until
+< 8.	void
+< 9.	main
+< 10.	a
+< 11.	cde
+< 12.	b
+< 13.	e
+---
+> 1.	break
+> 2.	else
+> 3.	if
+> 4.	int
+> 5.	repeat
+> 6.	return
+> 7.	until
+> 8.	void
+> 9.	main
+> 10.	a
+> 11.	cde
+> 12.	b
+> 13.	e
+diff -r output/T01/tokens.txt PA1_testcases/T01/tokens.txt
+1,15c1,15
+< 1.	(KEYWORD, void) (ID, main) (SYMBOL, () (KEYWORD, void) (SYMBOL, )) (SYMBOL, {) 
+< 2.	(KEYWORD, int) (ID, a) (SYMBOL, =) (NUM, 0) (SYMBOL, ;) 
+< 4.	(ID, a) (SYMBOL, =) (NUM, 2) (SYMBOL, +) (NUM, 2) (SYMBOL, ;) 
+< 5.	(ID, a) (SYMBOL, =) (ID, a) (SYMBOL, -) (NUM, 3) (SYMBOL, ;) 
+< 6.	(ID, cde) (SYMBOL, =) (ID, a) (SYMBOL, ;) 
+< 7.	(KEYWORD, if) (SYMBOL, () (ID, b) (SYMBOL, ==) (SYMBOL, )) (SYMBOL, {) 
+< 8.	(ID, a) (SYMBOL, =) (NUM, 3) (SYMBOL, ;) 
+< 9.	(ID, e) (SYMBOL, =) (NUM, 7) (SYMBOL, ;) 
+< 10.	(SYMBOL, }) 
+< 11.	(KEYWORD, else) 
+< 12.	(SYMBOL, {) 
+< 13.	(ID, b) (SYMBOL, =) (ID, a) (SYMBOL, <) (ID, cde) (SYMBOL, ;) 
+< 14.	(SYMBOL, {) (ID, cde) (SYMBOL, =) (NUM, 2) (SYMBOL, ;) 
+< 15.	(SYMBOL, }) (SYMBOL, }) 
+< 16.	(KEYWORD, return) (SYMBOL, ;) 
+---
+> 1.	(KEYWORD, void) (ID, main) (SYMBOL, () (KEYWORD, void) (SYMBOL, )) (SYMBOL, {) 
+> 2.	(KEYWORD, int) (ID, a) (SYMBOL, =) (NUM, 0) (SYMBOL, ;) 
+> 4.	(ID, a) (SYMBOL, =) (NUM, 2) (SYMBOL, +) (NUM, 2) (SYMBOL, ;) 
+> 5.	(ID, a) (SYMBOL, =) (ID, a) (SYMBOL, -) (NUM, 3) (SYMBOL, ;) 
+> 6.	(ID, cde) (SYMBOL, =) (ID, a) (SYMBOL, ;) 
+> 7.	(KEYWORD, if) (SYMBOL, () (ID, b) (SYMBOL, ==) (SYMBOL, )) (SYMBOL, {) 
+> 8.	(ID, a) (SYMBOL, =) (NUM, 3) (SYMBOL, ;) 
+> 9.	(ID, e) (SYMBOL, =) (NUM, 7) (SYMBOL, ;) 
+> 10.	(SYMBOL, }) 
+> 11.	(KEYWORD, else) 
+> 12.	(SYMBOL, {) 
+> 13.	(ID, b) (SYMBOL, =) (ID, a) (SYMBOL, <) (ID, cde) (SYMBOL, ;) 
+> 14.	(SYMBOL, {) (ID, cde) (SYMBOL, =) (NUM, 2) (SYMBOL, ;) 
+> 15.	(SYMBOL, }) (SYMBOL, }) 
+> 16.	(KEYWORD, return) (SYMBOL, ;) 

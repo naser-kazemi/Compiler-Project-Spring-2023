@@ -1,0 +1,110 @@
+Only in PA1_testcases/T09: input.txt
+diff -r output/T09/lexical_errors.txt PA1_testcases/T09/lexical_errors.txt
+1,4c1,4
+< 5.	(#, Invalid input) 
+< 6.	(=#, Invalid Input) (#, Invalid input) 
+< 23.	(void$, Invalid input) 
+< 28.	(#, Invalid input) (#, Invalid input) (/, Invalid input) 
+---
+> 5.	(#, Invalid input) 
+> 6.	(=#, Invalid input) (#, Invalid input) 
+> 23.	(void$, Invalid input) 
+> 28.	(*#, Invalid input) (#, Invalid input) (/, Invalid input) 
+diff -r output/T09/symbol_table.txt PA1_testcases/T09/symbol_table.txt
+1,15c1,15
+< 1.	break
+< 2.	else
+< 3.	if
+< 4.	int
+< 5.	repeat
+< 6.	return
+< 7.	until
+< 8.	void
+< 9.	count
+< 10.	result
+< 11.	f
+< 12.	a
+< 13.	main
+< 14.	i
+< 15.	output
+---
+> 1.	break
+> 2.	else
+> 3.	if
+> 4.	int
+> 5.	repeat
+> 6.	return
+> 7.	until
+> 8.	void
+> 9.	count
+> 10.	result
+> 11.	f
+> 12.	a
+> 13.	main
+> 14.	i
+> 15.	output
+diff -r output/T09/tokens.txt PA1_testcases/T09/tokens.txt
+1,31c1,31
+< 1.	(KEYWORD, int) (ID, count) (SYMBOL, ;) 
+< 2.	(KEYWORD, int) (ID, result) (SYMBOL, [) (NUM, 50) (SYMBOL, ]) (SYMBOL, ;) 
+< 5.	(KEYWORD, int) (ID, f) (SYMBOL, () (KEYWORD, int) (ID, a) (SYMBOL, ,) (KEYWORD, int) (ID, result) (SYMBOL, [) (SYMBOL, ]) (SYMBOL, )) (SYMBOL, {) 
+< 6.	(ID, count) (INVALID, =#) (ID, count) (SYMBOL, +) (NUM, 1) (SYMBOL, ;) 
+< 7.	(KEYWORD, if) (SYMBOL, () (ID, result) (SYMBOL, [) (ID, a) (SYMBOL, -) (NUM, 1) (SYMBOL, ]) (SYMBOL, )) (SYMBOL, {) 
+< 8.	(KEYWORD, return) (ID, result) (SYMBOL, [) (ID, a) (SYMBOL, -) (NUM, 1) (SYMBOL, ]) (SYMBOL, ;) 
+< 9.	(SYMBOL, }) (KEYWORD, else) (SYMBOL, {) 
+< 10.	(KEYWORD, if) (SYMBOL, () (ID, a) (SYMBOL, ==) (NUM, 1) (SYMBOL, )) (SYMBOL, {) 
+< 11.	(ID, result) (SYMBOL, [) (ID, a) (SYMBOL, -) (NUM, 1) (SYMBOL, ]) (SYMBOL, =) (NUM, 1) (SYMBOL, ;) 
+< 12.	(KEYWORD, return) (NUM, 1) (SYMBOL, ;) 
+< 13.	(SYMBOL, }) (KEYWORD, else) (KEYWORD, if) (SYMBOL, () (ID, a) (SYMBOL, ==) (SYMBOL, ==) (SYMBOL, =) (NUM, 2) (SYMBOL, )) (SYMBOL, {) 
+< 14.	(ID, result) (SYMBOL, [) (ID, a) (SYMBOL, -) (NUM, 1) (SYMBOL, ]) (SYMBOL, =) (NUM, 1) (SYMBOL, ;) 
+< 15.	(KEYWORD, return) (NUM, 1) (SYMBOL, ;) 
+< 16.	(SYMBOL, }) (KEYWORD, else) (SYMBOL, {) 
+< 17.	(ID, result) (SYMBOL, [) (ID, a) (SYMBOL, -) (NUM, 1) (SYMBOL, ]) (SYMBOL, =) (ID, f) (SYMBOL, () (ID, a) (SYMBOL, -) (NUM, 2) (SYMBOL, ,) (ID, result) (SYMBOL, )) (SYMBOL, +) (ID, f) (SYMBOL, () (ID, a) (SYMBOL, -) (NUM, 1) (SYMBOL, ,) (ID, result) (SYMBOL, )) (SYMBOL, ;) 
+< 18.	(KEYWORD, return) (ID, result) (SYMBOL, [) (ID, a) (SYMBOL, -) (NUM, 1) (SYMBOL, ]) (SYMBOL, ;) 
+< 19.	(SYMBOL, }) 
+< 20.	(SYMBOL, }) 
+< 21.	(SYMBOL, }) 
+< 23.	(KEYWORD, void) (ID, main) (SYMBOL, () (SYMBOL, )) (SYMBOL, {) 
+< 24.	(KEYWORD, int) (ID, i) (SYMBOL, ;) 
+< 25.	(ID, i) (SYMBOL, =) (NUM, 0) (SYMBOL, ;) 
+< 26.	(KEYWORD, repeat) (SYMBOL, {) 
+< 27.	(ID, result) (SYMBOL, [) (ID, i) (SYMBOL, ]) (SYMBOL, =) (NUM, 0) (SYMBOL, ;) 
+< 28.	(ID, i) (SYMBOL, =) (ID, i) (SYMBOL, *) (SYMBOL, {) (NUM, 2) (SYMBOL, ;) 
+< 29.	(SYMBOL, }) (KEYWORD, until) (SYMBOL, () (NUM, 50) (SYMBOL, <) (ID, i) (SYMBOL, )) 
+< 30.	(ID, count) (SYMBOL, =) (NUM, 0) (SYMBOL, ;) 
+< 31.	(ID, output) (SYMBOL, () (ID, f) (SYMBOL, () (NUM, 40) (SYMBOL, ,) (ID, result) (SYMBOL, )) (SYMBOL, )) (SYMBOL, ;) 
+< 32.	(ID, output) (SYMBOL, () (ID, count) (SYMBOL, )) (SYMBOL, ;) 
+< 33.	(SYMBOL, }) 
+< 34.	(NUM, 1941) 
+---
+> 1.	(KEYWORD, int) (ID, count) (SYMBOL, ;) 
+> 2.	(KEYWORD, int) (ID, result) (SYMBOL, [) (NUM, 50) (SYMBOL, ]) (SYMBOL, ;) 
+> 5.	(KEYWORD, int) (ID, f) (SYMBOL, () (KEYWORD, int) (ID, a) (SYMBOL, ,) (KEYWORD, int) (ID, result) (SYMBOL, [) (SYMBOL, ]) (SYMBOL, )) (SYMBOL, {) 
+> 6.	(ID, count) (ID, count) (SYMBOL, +) (NUM, 1) (SYMBOL, ;) 
+> 7.	(KEYWORD, if) (SYMBOL, () (ID, result) (SYMBOL, [) (ID, a) (SYMBOL, -) (NUM, 1) (SYMBOL, ]) (SYMBOL, )) (SYMBOL, {) 
+> 8.	(KEYWORD, return) (ID, result) (SYMBOL, [) (ID, a) (SYMBOL, -) (NUM, 1) (SYMBOL, ]) (SYMBOL, ;) 
+> 9.	(SYMBOL, }) (KEYWORD, else) (SYMBOL, {) 
+> 10.	(KEYWORD, if) (SYMBOL, () (ID, a) (SYMBOL, ==) (NUM, 1) (SYMBOL, )) (SYMBOL, {) 
+> 11.	(ID, result) (SYMBOL, [) (ID, a) (SYMBOL, -) (NUM, 1) (SYMBOL, ]) (SYMBOL, =) (NUM, 1) (SYMBOL, ;) 
+> 12.	(KEYWORD, return) (NUM, 1) (SYMBOL, ;) 
+> 13.	(SYMBOL, }) (KEYWORD, else) (KEYWORD, if) (SYMBOL, () (ID, a) (SYMBOL, ==) (SYMBOL, ==) (SYMBOL, =) (NUM, 2) (SYMBOL, )) (SYMBOL, {) 
+> 14.	(ID, result) (SYMBOL, [) (ID, a) (SYMBOL, -) (NUM, 1) (SYMBOL, ]) (SYMBOL, =) (NUM, 1) (SYMBOL, ;) 
+> 15.	(KEYWORD, return) (NUM, 1) (SYMBOL, ;) 
+> 16.	(SYMBOL, }) (KEYWORD, else) (SYMBOL, {) 
+> 17.	(ID, result) (SYMBOL, [) (ID, a) (SYMBOL, -) (NUM, 1) (SYMBOL, ]) (SYMBOL, =) (ID, f) (SYMBOL, () (ID, a) (SYMBOL, -) (NUM, 2) (SYMBOL, ,) (ID, result) (SYMBOL, )) (SYMBOL, +) (ID, f) (SYMBOL, () (ID, a) (SYMBOL, -) (NUM, 1) (SYMBOL, ,) (ID, result) (SYMBOL, )) (SYMBOL, ;) 
+> 18.	(KEYWORD, return) (ID, result) (SYMBOL, [) (ID, a) (SYMBOL, -) (NUM, 1) (SYMBOL, ]) (SYMBOL, ;) 
+> 19.	(SYMBOL, }) 
+> 20.	(SYMBOL, }) 
+> 21.	(SYMBOL, }) 
+> 23.	(KEYWORD, void) (ID, main) (SYMBOL, () (SYMBOL, )) (SYMBOL, {) 
+> 24.	(KEYWORD, int) (ID, i) (SYMBOL, ;) 
+> 25.	(ID, i) (SYMBOL, =) (NUM, 0) (SYMBOL, ;) 
+> 26.	(KEYWORD, repeat) (SYMBOL, {) 
+> 27.	(ID, result) (SYMBOL, [) (ID, i) (SYMBOL, ]) (SYMBOL, =) (NUM, 0) (SYMBOL, ;) 
+> 28.	(ID, i) (SYMBOL, =) (ID, i) (SYMBOL, {) (NUM, 2) (SYMBOL, ;) 
+> 29.	(SYMBOL, }) (KEYWORD, until) (SYMBOL, () (NUM, 50) (SYMBOL, <) (ID, i) (SYMBOL, )) 
+> 30.	(ID, count) (SYMBOL, =) (NUM, 0) (SYMBOL, ;) 
+> 31.	(ID, output) (SYMBOL, () (ID, f) (SYMBOL, () (NUM, 40) (SYMBOL, ,) (ID, result) (SYMBOL, )) (SYMBOL, )) (SYMBOL, ;) 
+> 32.	(ID, output) (SYMBOL, () (ID, count) (SYMBOL, )) (SYMBOL, ;) 
+> 33.	(SYMBOL, }) 
+> 34.	(NUM, 1941) 

@@ -13,7 +13,7 @@ class TokenType(Enum):
     WHITESPACE = 'WHITESPACE'
     INVALID = 'INVALID'
     UNMATCHED_COMMENT = 'UNMATCHED_COMMENT'
-    
+
     # reserved words
     IF = 'if'
     ELSE = 'else'
@@ -23,6 +23,9 @@ class TokenType(Enum):
     BREAK = 'break'
     UNTIL = 'until'
     RETURN = 'return'
+
+    def __str__(self):
+        return self.value
 
 
 def get_token_type(char):
@@ -40,4 +43,4 @@ def get_token_type(char):
 
 
 def print_short_comment(comment):
-    return comment[:4] + '...' if len(comment) > 7 else comment
+    return comment[:7] + '...' if len(comment) > 7 else comment
