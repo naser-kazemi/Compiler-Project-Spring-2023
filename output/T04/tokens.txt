@@ -3,7 +3,7 @@
 3.	(ID, x) (SYMBOL, =) (ID, pple) (SYMBOL, ;) 
 4.	(ID, mk3) (SYMBOL, =) (ID, x) (SYMBOL, +) (NUM, 1) (SYMBOL, ;) 
 5.	(KEYWORD, if) (SYMBOL, () (ID, mk3) (SYMBOL, ==) (NUM, 52) (SYMBOL, )) (SYMBOL, {) 
-6.	(ID, b) (INVALID, =#) (NUM, 32) (SYMBOL, ;) 
+6.	(ID, b) (NUM, 32) (SYMBOL, ;) 
 7.	(KEYWORD, return) (SYMBOL, ;) 
 8.	(SYMBOL, }) 
 9.	(KEYWORD, break) (SYMBOL, ;) (SYMBOL, }) 

@@ -1,6 +1,6 @@
 1.	(NUM, 1) (ID, zero) (ID, point) 
 3.	(KEYWORD, int) (ID, hell) (SYMBOL, () (KEYWORD, int) (ID, id) (SYMBOL, )) (SYMBOL, {) 
-4.	(ID, re) (SYMBOL, %) (ID, peat) (SYMBOL, {) 
+4.	(ID, peat) (SYMBOL, {) 
 5.	(KEYWORD, if) (SYMBOL, () (NUM, 1000) (SYMBOL, <) (ID, scars) (SYMBOL, )) 
 6.	(KEYWORD, break) (SYMBOL, ;) 
 7.	(KEYWORD, else) 

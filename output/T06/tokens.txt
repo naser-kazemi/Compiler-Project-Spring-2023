@@ -3,7 +3,7 @@
 3.	(KEYWORD, if) (SYMBOL, () (ID, arr) (SYMBOL, [) (ID, g) (SYMBOL, ]) (SYMBOL, )) (SYMBOL, {) 
 4.	(ID, killed) (SYMBOL, =) (ID, me) (SYMBOL, ;) 
 5.	(ID, killer) (SYMBOL, =) (ID, you) (SYMBOL, ;) 
-6.	(ID, b) (INVALID, =/) (ID, b) (SYMBOL, +) (NUM, 2) (SYMBOL, ;) 
+6.	(ID, b) (SYMBOL, =) (ID, b) (SYMBOL, +) (NUM, 2) (SYMBOL, ;) 
 7.	(KEYWORD, if) (SYMBOL, () (NUM, 3) (SYMBOL, <) (NUM, 2) (SYMBOL, )) (SYMBOL, {) 
 8.	(KEYWORD, return) (SYMBOL, ;) 
 9.	(SYMBOL, }) 

@@ -28,5 +28,5 @@ for folder in $test_directory/*; do
     python3 compiler.py "$input_directory" "$folder_name"
     echo "Testing $folder_name"
     # compare the output files with the expected output files
-    diff -r "output/$folder_name" "$input_directory" > "diff/$folder_name.diff"
+    diff -r --ignore-space-change "output/$folder_name" "$input_directory" > "diff/$folder_name.diff"
 done

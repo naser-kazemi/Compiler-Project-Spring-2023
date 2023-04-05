@@ -33,7 +33,7 @@ def get_token_type(char):
         return TokenType.NUM
     if char.isalnum():
         return TokenType.IDorKEYWORD
-    if char in ['+', '-', '*', '%', '(', ')', '{', '}', '[', ']', ',', ';', '=', '<', '>']:
+    if char in ['+', '-', '*', '(', ')', '{', '}', '[', ']', ',', ';', '=', '<', '>']:
         return TokenType.SYMBOL
     if char in [' ', '\t', '\n', '\r', '\v', '\f', '']:
         return TokenType.WHITESPACE
