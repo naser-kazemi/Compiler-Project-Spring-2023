@@ -29,9 +29,11 @@ class TokenType(Enum):
         return self.value
 
 
+EPSILON = "EPSILON"
+
 rule_dict = {
     "Program": [["Declaration-list"]],
-    "Declaration-list": [["Declaration", "Declaration-list"], ['epsilon']],
+    "Declaration-list": [["Declaration", "Declaration-list"], ['EPSILON']],
     "Declaration": [["Declaration-initial", "Declaration-prime"]],
     "Declaration-initial": [["Type-specifier", "ID"]],
     "Declaration-prime": [["Fun-declaration-prime"], ["Var-declaration-prime"]],
@@ -39,11 +41,11 @@ rule_dict = {
     "Fun-declaration-prime": [["(", "Params", ")", "Compound-stmt"]],
     "Type-specifier": [["int"], ["void"]],
     "Params": [["int", "ID", "Param-prime", "Param-list"], ["void"]],
-    "Param-list": [[",", "Param", "Param-list"], ['epsilon']],
+    "Param-list": [[",", "Param", "Param-list"], ['EPSILON']],
     "Param": [["Declaration-initial", "Param-prime"]],
-    "Param-prime": [["[", "]"], ['epsilon']],
+    "Param-prime": [["[", "]"], ['EPSILON']],
     "Compound-stmt": [["{", "Declaration-list", "Statement-list", "}"]],
-    "Statement-list": [["Statement", "Statement-list"], ['epsilon']],
+    "Statement-list": [["Statement", "Statement-list"], ['EPSILON']],
     "Statement": [["Expression-stmt"], ["Compound-stmt"], ["Selection-stmt"], ["Iteration-stmt"], ["Return-stmt"]],
     "Expression-stmt": [["Expression", ";"], ["break", ";"], [";"]],
     "Selection-stmt": [["if", "(", "Expression", ")", "Statement", "else", "Statement"]],
@@ -55,25 +57,25 @@ rule_dict = {
     "H": [["=", "Expression"], ["G", "D", "C"]],
     "Simple-expression-zegond": [["Additive-expression-zegond", "C"]],
     "Simple-expression-prime": [["Additive-expression-prime", "C"]],
-    "C": [["Relop", "Additive-expression"], ['epsilon']],
+    "C": [["Relop", "Additive-expression"], ['EPSILON']],
     "Relop": [["<"], ["=="]],
     "Additive-expression": [["Term", "D"]],
     "Additive-expression-prime": [["Term-prime", "D"]],
     "Additive-expression-zegond": [["Term-zegond", "D"]],
-    "D": [["Addop", "Term", "D"], ['epsilon']],
+    "D": [["Addop", "Term", "D"], ['EPSILON']],
     "Addop": [["+"], ["-"]],
     "Term": [["Factor", "G"]],
     "Term-prime": [["Factor-prime", "G"]],
     "Term-zegond": [["Factor-zegond", "G"]],
-    "G": [["*", "Factor", "G"], ['epsilon']],
+    "G": [["*", "Factor", "G"], ['EPSILON']],
     "Factor": [["(", "Expression", ")"], ["ID", "Var-call-prime"], ["NUM"]],
     "Var-call-prime": [["(", "Args", ")"], ["Var-prime"]],
-    "Var-prime": [["[", "Expression", "]"], ['epsilon']],
-    "Factor-prime": [["(", "Args", ")"], ['epsilon']],
+    "Var-prime": [["[", "Expression", "]"], ['EPSILON']],
+    "Factor-prime": [["(", "Args", ")"], ['EPSILON']],
     "Factor-zegond": [["(", "Expression", ")"], ["NUM"]],
-    "Args": [["Arg-list"], ['epsilon']],
+    "Args": [["Arg-list"], ['EPSILON']],
     "Arg-list": [["Expression", "Arg-list-prime"]],
-    "Arg-list-prime": [[",", "Expression", "Arg-list-prime"], ['epsilon']]
+    "Arg-list-prime": [[",", "Expression", "Arg-list-prime"], ['EPSILON']]
 }
 
 
@@ -106,25 +108,71 @@ def read_grammar_data():
 
 
 class Node:
-
-    def __init__(self, name):
+    def __init__(self, name, is_terminal=False):
         self.name = name
-        self.child = None
+        self.is_terminal = is_terminal
+        self.ins = []
+        self.outs = []
 
-    def add_child(self, child):
-        self.child = child
+
+class Edge:
+
+    def __init__(self, name, start, end):
+        self.name = name
+        self.start = start
+        self.end = end
+        start.outs.append(self)
+        end.ins.append(self)
 
 
 class TransitionDiagram:
 
     def __init__(self, rule):
         self.rule = rule
-        self.nodes = []
-        self.start = None
-        self.accept = None
+        self.lhs = rule[0]
+        self.start = Node(0)
+        self.nodes = [self.start]
+        self.counter = 0
+        self.accept = Node("accept", is_terminal=True)
         self.createTD()
 
     def createTD(self):
-        self.start = self.rule[0]
         rhs = self.rule[1]
+        for expr in rhs:
+            current = self.start
+            expr_last = len(expr) - 1
+            for idx, item in enumerate(expr):
+                if idx == expr_last or item == EPSILON:
+                    Edge(item, current, self.accept)
+                else:
+                    self.counter += 1
+                    next = Node(self.counter)
+                    Edge(item, current, next)
+                    self.nodes.append(next)
+                    current = next
 
+    def traverse(self, node, is_print=False):
+        if is_print:
+            print(node.name, end=" -> ")
+            if node is self.start:
+                print()
+
+        for edge in node.outs:
+            if is_print:
+                print(edge.name, end=" -> ")
+                next = edge.end
+                if next is not self.accept:
+                    self.traverse(next, is_print)
+                else:
+                    print(self.accept.name)
+
+    def print_diagram(self):
+        print(self.lhs + ": ")
+        self.traverse(self.start, is_print=True)
+
+
+if __name__ == '__main__':
+    rule = "B", [["=", "Expression"], ["[", "Expression", "]", "H"], ["Simple-expression-prime"]]
+    print(rule)
+    transition_diagram = TransitionDiagram(rule)
+    transition_diagram.print_diagram()
