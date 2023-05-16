@@ -1,6 +1,7 @@
 # token types
 from collections import OrderedDict, defaultdict
 from enum import Enum
+import json
 
 
 class TokenType(Enum):
@@ -44,3 +45,13 @@ def get_token_type(char):
 
 def print_short_comment(comment):
     return comment[:7] + '...' if len(comment) > 7 else comment
+
+
+def read_grammar_data():
+    with open("data.json", "r") as f:
+        data = json.load(f)
+        terminals = data["terminals"]
+        non_terminals = data["non-terminals"]
+        first = data["first"]
+        follow = data["follow"]
+        return terminals, non_terminals, first, follow
