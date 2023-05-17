@@ -2,6 +2,7 @@
 from collections import OrderedDict, defaultdict
 from enum import Enum
 import json
+from anytree import Node, RenderTree
 
 
 class TokenType(Enum):
@@ -107,7 +108,7 @@ def read_grammar_data():
         return terminals, non_terminals, first, follow
 
 
-class Node:
+class State:
     def __init__(self, name, is_terminal=False):
         self.name = name
         self.is_terminal = is_terminal
@@ -115,10 +116,10 @@ class Node:
         self.outs = []
 
 
-class Edge:
+class Transition:
 
     def __init__(self, name, start, end):
-        self.name = name
+        self.value = name
         self.start = start
         self.end = end
         start.outs.append(self)
@@ -130,10 +131,10 @@ class TransitionDiagram:
     def __init__(self, rule):
         self.rule = rule
         self.lhs = rule[0]
-        self.start = Node(0)
+        self.start = State(0)
         self.nodes = [self.start]
         self.counter = 0
-        self.accept = Node("accept", is_terminal=True)
+        self.accept = State("accept", is_terminal=True)
         self.createTD()
 
     def createTD(self):
@@ -143,11 +144,11 @@ class TransitionDiagram:
             expr_last = len(expr) - 1
             for idx, item in enumerate(expr):
                 if idx == expr_last or item == EPSILON:
-                    Edge(item, current, self.accept)
+                    Transition(item, current, self.accept)
                 else:
                     self.counter += 1
-                    next = Node(self.counter)
-                    Edge(item, current, next)
+                    next = State(self.counter)
+                    Transition(item, current, next)
                     self.nodes.append(next)
                     current = next
 
@@ -159,7 +160,7 @@ class TransitionDiagram:
 
         for edge in node.outs:
             if is_print:
-                print(edge.name, end=" -> ")
+                print(edge.value, end=" -> ")
                 next = edge.end
                 if next is not self.accept:
                     self.traverse(next, is_print)

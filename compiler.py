@@ -1,5 +1,6 @@
 from utils import *
 from scanner import Scanner
+from parser_module import Parser
 import sys
 
 
@@ -45,7 +46,11 @@ if __name__ == '__main__':
         input_dir = sys.argv[1] + '/'
         output_dir = 'output/' + sys.argv[2] + '/'
     scanner = Scanner(input_dir + 'input.txt')
-    scanner.read_tokens()
-    write_lexical_errors(scanner, output_dir)
-    write_symbol_table(scanner, output_dir)
-    write_tokens(scanner, output_dir)
+    parser = Parser(scanner, rule_dict)
+    parser.parse()
+    for pre, fill, node in RenderTree(parser.root):
+        print("%s%s" % (pre, node.name))
+    # scanner.read_tokens()
+    # write_lexical_errors(scanner, output_dir)
+    # write_symbol_table(scanner, output_dir)
+    # write_tokens(scanner, output_dir)
