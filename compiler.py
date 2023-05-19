@@ -48,9 +48,13 @@ if __name__ == '__main__':
     scanner = Scanner(input_dir + 'input.txt')
     parser = Parser(scanner, rule_dict)
     parser.parse()
-    for pre, fill, node in RenderTree(parser.root):
-        print("%s%s" % (pre, node.name))
-    # scanner.read_tokens()
-    # write_lexical_errors(scanner, output_dir)
-    # write_symbol_table(scanner, output_dir)
-    # write_tokens(scanner, output_dir)
+    with open("parse_tree.txt", 'w') as output:
+        for pre, fill, node in RenderTree(parser.root):
+            output.write("%s%s\n" % (pre, node.name))
+
+    with open("syntax_errors.txt", 'w') as output:
+        if parser.syntax_error:
+            for error in parser.syntax_error:
+                output.write(f"{error}\n")
+        else:
+            output.write("There is no syntax error.")

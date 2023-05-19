@@ -1,5 +1,5 @@
 from utils import *
-from scanner import Scanner
+from scanner import Scanner, Token
 
 START_PRODUCTION_RULE = "Program"
 NON_TERMINAL = "NON_TERMINAL"
@@ -17,101 +17,104 @@ class Parser:
         self.stack = []
         self.terminals, self.non_terminals, self.first, self.follow = read_grammar_data()
         self.root = None
+        self.syntax_error = []
 
     def createTDs(self):
         for x in self.rule_dict.items():
             td = TransitionDiagram(x)
             self.transitionDiagrams[td.lhs] = td
 
+    def compute_first(self, rhs):
+        first_list = []
+        for item in rhs:
+            if item in self.terminals:
+                first_list.append(item)
+                return first_list
+            elif item == EPSILON:
+                continue
+            else:
+                first = self.first[item].copy()
+                if EPSILON in first:
+                    first.remove(EPSILON)
+                first_list.extend(first)
+                if EPSILON not in self.first[item]:
+                    return first_list
+        first_list.append(EPSILON)
+        return first_list
+
     def get_next_token(self):
         token = self.scanner.get_next_token()
+        # print(token)
         while token.type == TokenType.WHITESPACE or token.type == TokenType.COMMENT:
             token = self.get_next_token()
         return token
 
-    def get_terminal_transition(self, token, state):
-        transitions = state.outs
-        is_all_terminal = all(tr.value in self.terminals for tr in transitions)
-        for tr in transitions:
-            if tr.value in self.terminals and tr.value == token.value:
-                return True, tr
-        if is_all_terminal:
-            return False, transitions[0]
-        return NON_TERMINAL
-
-    def get_non_terminal_transition(self, token, state):
-        non_terminals = [tr for tr in state.outs if tr.value in self.non_terminals]
-        for tr in non_terminals:
-            if token.value in self.first[tr.value]:
-                return MATCH, tr
-        for tr in non_terminals:
-            if EPSILON in self.first[tr.value] and token.value in self.follow[tr.value]:
-                return SKIP, tr
-
-        return MISMATCH, non_terminals[0]
-
     def non_terminal_transition_error(self, token, transition):
         if token.value in self.follow[transition.value]:
-            return True, f"missing {transition.value} on line {token.line_num}."
-        return False, f"illegal {token.value} found on line {token.line_num}."
+            return True, f"#{token.line_num} : syntax error, missing {transition.value}"
+        return False, f"#{token.line_num} : syntax error, illegal {token.value}"
+
+    def get_path_on_diagram(self, token, transition_diagram):
+        lhs, rhs = transition_diagram.derive_rules()
+        for expr in rhs:
+            if get_token_type_for_grammar(token) in self.compute_first(expr):
+                return expr
+        for expr in rhs:
+            if EPSILON in self.compute_first(expr):
+                if get_token_type_for_grammar(token) in self.follow[lhs]:
+                    return expr
+        if token.value == "$" and "$" in self.follow[lhs]:
+            for expr in rhs:
+                if EPSILON in self.compute_first(expr):
+                    if get_token_type_for_grammar(token) in self.follow[lhs]:
+                        return expr
+
+        return None
 
     def parse(self):
-        start_td = self.transitionDiagrams[START_PRODUCTION_RULE]
-        self.stack.append(start_td.start)
-        current_node = None
-        current_state = self.stack[0]
-        current_transition = "Program"
+        is_eof = False
         token = self.get_next_token()
-        print(token.value, token.type)
-        while self.stack:
-            print(current_state.name)
-            current_node = Node(current_transition, parent=current_node)
-            if self.root is None:
-                self.root = current_node
-            transition = self.get_terminal_transition(token, current_state)
-            if transition != NON_TERMINAL:
-                is_matched, tr = transition
-                if is_matched:
-                    token = self.get_next_token()
-                    self.stack.pop()
-                    self.stack.append(tr.end)
-                    current_state = self.stack[-1]
-                    current_transition = (token.type, token.type)
-                else:
-                    print(f"missing {tr.value} on line {token.line_num}")
-                    self.stack.pop()
-                    self.stack.append(tr.end)
-                    current_state = self.stack[-1]
-
-            else:
-                match_result, transition = self.get_non_terminal_transition(token, current_state)
-                if match_result == MISMATCH:
-                    is_in_follow, error = self.non_terminal_transition_error(token, transition)
-                    if is_in_follow:
-                        current_state = transition.end
-                        self.stack.pop()
-                        self.stack.append(current_state)
+        self.stack.append(("Program", None))
+        while self.stack[-1][0] != "$":
+            current_expression = self.stack[-1][0]
+            if current_expression not in self.non_terminals or current_expression == EPSILON:
+                # print(token, get_token_type_for_grammar(token), current_expression)
+                # print(current_expression, token)
+                if get_token_type_for_grammar(token) == current_expression or current_expression == EPSILON:
+                    current_node, parent = self.stack.pop()
+                    if current_expression == EPSILON:
+                        Node(current_expression, parent)
                     else:
+                        Node(f"({str(token.type)}, {token.value})", parent=parent)
                         token = self.get_next_token()
-                        self.stack.pop()
-                        self.stack.append(transition.end)
-                        td = self.transitionDiagrams[transition.value]
-                        self.stack.append(td.start)
-                        current_state = self.stack[-1]
-                    print(error)
                 else:
-                    if match_result == MATCH:
+                    self.stack.pop()
+                    self.syntax_error.append(f"#{token.line_num} : syntax error, missing {current_expression}")
+            else:
+                transition_diagram = self.transitionDiagrams[current_expression]
+                path_on_diagram = self.get_path_on_diagram(token, transition_diagram)
+                if path_on_diagram is not None:
+                    current_node, parent = self.stack.pop()
+                    parent = Node(current_node, parent=parent)
+                    if current_node == "Program":
+                        self.root = parent
+                        self.stack.append(("$", parent))
+                    for item in path_on_diagram[::-1]:
+                        self.stack.append((item, parent))
+                else:
+                    if token.value == "$" and len(self.stack) > 1:
+                        self.syntax_error.append(f"#{token.line_num} : syntax error, Unexpected EOF")
+                        is_eof = True
+                        break
+                    if get_token_type_for_grammar(token) in self.follow[current_expression]:
                         self.stack.pop()
-                        self.stack.append(transition.end)
-                        td = self.transitionDiagrams[transition.value]
-                        self.stack.append(td.start)
-                        current_state = self.stack[-1]
+                        self.syntax_error.append(f"#{token.line_num} : syntax error, missing {current_expression}")
                     else:
-                        current_state = transition.end
-                        self.stack.pop()
-                        self.stack.append(current_state)
-            if current_state.name == "accept":
-                current_state = self.stack.pop()
+                        self.syntax_error.append(
+                            f"#{token.line_num} : syntax error, illegal {get_token_type_for_grammar(token)}")
+                        token = self.get_next_token()
+        if not is_eof:
+            Node("$", self.root)
 
 
 def main():

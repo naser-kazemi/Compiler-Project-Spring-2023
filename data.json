@@ -73,10 +73,10 @@
     ],
     "first": {
         "Program": [
-            "int", "void", "EPSILON"
+            "int", "void", "epsilon"
         ],
         "Declaration-list": [
-            "int", "void", "EPSILON"
+            "int", "void", "epsilon"
         ],
         "Declaration": [
             "int", "void"
@@ -98,13 +98,13 @@
             "int", "void"
         ],
         "Param-list": [
-            ",", "EPSILON"
+            ",", "epsilon"
         ],
         "Param": [
             "int", "void"
         ],
         "Param-prime": [
-            "[", "EPSILON"
+            "[", "epsilon"
         ],
         "Compound-stmt": ["{"],
         "Statement-list": [
@@ -117,7 +117,7 @@
             "if",
             "repeat",
             "return",
-            "EPSILON"
+            "epsilon"
         ],
         "Statement": [
             "ID",
@@ -155,7 +155,7 @@
             "+",
             "-",
             "*",
-            "EPSILON"
+            "epsilon"
         ],
         "H": [
             "=",
@@ -164,7 +164,7 @@
             "+",
             "-",
             "*",
-            "EPSILON"
+            "epsilon"
         ],
         "Simple-expression-zegond": [
             "NUM", "("
@@ -176,10 +176,10 @@
             "+",
             "-",
             "*",
-            "EPSILON"
+            "epsilon"
         ],
         "C": [
-            "<", "==", "EPSILON"
+            "<", "==", "epsilon"
         ],
         "Relop": [
             "<", "=="
@@ -192,13 +192,13 @@
             "+",
             "-",
             "*",
-            "EPSILON"
+            "epsilon"
         ],
         "Additive-expression-zegond": [
             "NUM", "("
         ],
         "D": [
-            "+", "-", "EPSILON"
+            "+", "-", "epsilon"
         ],
         "Addop": [
             "+", "-"
@@ -207,36 +207,36 @@
             "ID", "NUM", "("
         ],
         "Term-prime": [
-            "(", "*", "EPSILON"
+            "(", "*", "epsilon"
         ],
         "Term-zegond": [
             "NUM", "("
         ],
         "G": [
-            "*", "EPSILON"
+            "*", "epsilon"
         ],
         "Factor": [
             "ID", "NUM", "("
         ],
         "Var-call-prime": [
-            "[", "(", "EPSILON"
+            "[", "(", "epsilon"
         ],
         "Var-prime": [
-            "[", "EPSILON"
+            "[", "epsilon"
         ],
         "Factor-prime": [
-            "(", "EPSILON"
+            "(", "epsilon"
         ],
         "Factor-zegond": [
             "NUM", "("
         ],
         "Args": [
-            "ID", "NUM", "(", "EPSILON"
+            "ID", "NUM", "(", "epsilon"
         ],
         "Arg-list": [
             "ID", "NUM", "("
         ],
-        "Arg-list-prime": [",", "EPSILON"]
+        "Arg-list-prime": [",", "epsilon"]
     },
     "follow": {
         "Program": ["$"],

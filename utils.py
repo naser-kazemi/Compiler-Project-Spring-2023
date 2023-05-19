@@ -30,11 +30,11 @@ class TokenType(Enum):
         return self.value
 
 
-EPSILON = "EPSILON"
+EPSILON = "epsilon"
 
 rule_dict = {
     "Program": [["Declaration-list"]],
-    "Declaration-list": [["Declaration", "Declaration-list"], ['EPSILON']],
+    "Declaration-list": [["Declaration", "Declaration-list"], ['epsilon']],
     "Declaration": [["Declaration-initial", "Declaration-prime"]],
     "Declaration-initial": [["Type-specifier", "ID"]],
     "Declaration-prime": [["Fun-declaration-prime"], ["Var-declaration-prime"]],
@@ -42,11 +42,11 @@ rule_dict = {
     "Fun-declaration-prime": [["(", "Params", ")", "Compound-stmt"]],
     "Type-specifier": [["int"], ["void"]],
     "Params": [["int", "ID", "Param-prime", "Param-list"], ["void"]],
-    "Param-list": [[",", "Param", "Param-list"], ['EPSILON']],
+    "Param-list": [[",", "Param", "Param-list"], ['epsilon']],
     "Param": [["Declaration-initial", "Param-prime"]],
-    "Param-prime": [["[", "]"], ['EPSILON']],
+    "Param-prime": [["[", "]"], ['epsilon']],
     "Compound-stmt": [["{", "Declaration-list", "Statement-list", "}"]],
-    "Statement-list": [["Statement", "Statement-list"], ['EPSILON']],
+    "Statement-list": [["Statement", "Statement-list"], ['epsilon']],
     "Statement": [["Expression-stmt"], ["Compound-stmt"], ["Selection-stmt"], ["Iteration-stmt"], ["Return-stmt"]],
     "Expression-stmt": [["Expression", ";"], ["break", ";"], [";"]],
     "Selection-stmt": [["if", "(", "Expression", ")", "Statement", "else", "Statement"]],
@@ -58,25 +58,25 @@ rule_dict = {
     "H": [["=", "Expression"], ["G", "D", "C"]],
     "Simple-expression-zegond": [["Additive-expression-zegond", "C"]],
     "Simple-expression-prime": [["Additive-expression-prime", "C"]],
-    "C": [["Relop", "Additive-expression"], ['EPSILON']],
+    "C": [["Relop", "Additive-expression"], ['epsilon']],
     "Relop": [["<"], ["=="]],
     "Additive-expression": [["Term", "D"]],
     "Additive-expression-prime": [["Term-prime", "D"]],
     "Additive-expression-zegond": [["Term-zegond", "D"]],
-    "D": [["Addop", "Term", "D"], ['EPSILON']],
+    "D": [["Addop", "Term", "D"], ['epsilon']],
     "Addop": [["+"], ["-"]],
     "Term": [["Factor", "G"]],
     "Term-prime": [["Factor-prime", "G"]],
     "Term-zegond": [["Factor-zegond", "G"]],
-    "G": [["*", "Factor", "G"], ['EPSILON']],
+    "G": [["*", "Factor", "G"], ['epsilon']],
     "Factor": [["(", "Expression", ")"], ["ID", "Var-call-prime"], ["NUM"]],
     "Var-call-prime": [["(", "Args", ")"], ["Var-prime"]],
-    "Var-prime": [["[", "Expression", "]"], ['EPSILON']],
-    "Factor-prime": [["(", "Args", ")"], ['EPSILON']],
+    "Var-prime": [["[", "Expression", "]"], ['epsilon']],
+    "Factor-prime": [["(", "Args", ")"], ['epsilon']],
     "Factor-zegond": [["(", "Expression", ")"], ["NUM"]],
-    "Args": [["Arg-list"], ['EPSILON']],
+    "Args": [["Arg-list"], ['epsilon']],
     "Arg-list": [["Expression", "Arg-list-prime"]],
-    "Arg-list-prime": [[",", "Expression", "Arg-list-prime"], ['EPSILON']]
+    "Arg-list-prime": [[",", "Expression", "Arg-list-prime"], ['epsilon']]
 }
 
 
@@ -92,6 +92,16 @@ def get_token_type(char):
     if char == '/':
         return TokenType.COMMENT
     return TokenType.INVALID
+
+
+def get_token_type_for_grammar(token):
+    if token.type == TokenType.KEYWORD:
+        return str(token.value)
+    if token.type == TokenType.SYMBOL:
+        return str(token.value)
+    if token.value == "$":
+        return "$"
+    return str(token.type)
 
 
 def print_short_comment(comment):
@@ -152,28 +162,23 @@ class TransitionDiagram:
                     self.nodes.append(next)
                     current = next
 
-    def traverse(self, node, is_print=False):
-        if is_print:
-            print(node.name, end=" -> ")
-            if node is self.start:
-                print()
-
+    def traverse(self, node, rule):
         for edge in node.outs:
-            if is_print:
-                print(edge.value, end=" -> ")
-                next = edge.end
-                if next is not self.accept:
-                    self.traverse(next, is_print)
-                else:
-                    print(self.accept.name)
+            rule[-1].append(edge.value)
+            next = edge.end
+            if next is not self.accept:
+                self.traverse(next, rule)
 
-    def print_diagram(self):
-        print(self.lhs + ": ")
-        self.traverse(self.start, is_print=True)
+    def derive_rules(self):
+        rules = [self.lhs]
+        for next in self.start.outs:
+            rules.append([next.value])
+            self.traverse(next.end, rules)
+        return rules[0], rules[1:]
 
 
 if __name__ == '__main__':
     rule = "B", [["=", "Expression"], ["[", "Expression", "]", "H"], ["Simple-expression-prime"]]
     print(rule)
-    transition_diagram = TransitionDiagram(rule)
-    transition_diagram.print_diagram()
+    # transition_diagram = TransitionDiagram(rule)
+    # print(transition_diagram.derive_rules())

@@ -147,7 +147,7 @@ class Scanner:
 
     def get_next_token(self):
         if self.is_eof():
-            return
+            return Token("END", "$", self.line_num)
         current_char = self.get_current_char()
         token_type = get_token_type(current_char)
 
