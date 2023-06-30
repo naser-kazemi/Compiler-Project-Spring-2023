@@ -30,54 +30,40 @@ class TokenType(Enum):
         return self.value
 
 
-EPSILON = "epsilon"
+# write lexical errors
+def write_lexical_errors(scanner, output_file):
+    with open(output_file + 'lexical_errors.txt', 'w') as f:
+        if len(scanner.LEXICAL_ERRORS) == 0:
+            f.write('There is no lexical error.')
+        else:
+            for line in scanner.LEXICAL_ERRORS:
+                f.write(f'{line}.\t')
+                for error in scanner.LEXICAL_ERRORS[line]:
+                    f.write(f'({error[0]}, {error[1]}) ')
+                f.write('\n')
 
-rule_dict = {
-    "Program": [["Declaration-list"]],
-    "Declaration-list": [["Declaration", "Declaration-list"], ['epsilon']],
-    "Declaration": [["Declaration-initial", "Declaration-prime"]],
-    "Declaration-initial": [["Type-specifier", "ID"]],
-    "Declaration-prime": [["Fun-declaration-prime"], ["Var-declaration-prime"]],
-    "Var-declaration-prime": [[";"], ["[", "NUM", "]", ";"]],
-    "Fun-declaration-prime": [["(", "Params", ")", "Compound-stmt"]],
-    "Type-specifier": [["int"], ["void"]],
-    "Params": [["int", "ID", "Param-prime", "Param-list"], ["void"]],
-    "Param-list": [[",", "Param", "Param-list"], ['epsilon']],
-    "Param": [["Declaration-initial", "Param-prime"]],
-    "Param-prime": [["[", "]"], ['epsilon']],
-    "Compound-stmt": [["{", "Declaration-list", "Statement-list", "}"]],
-    "Statement-list": [["Statement", "Statement-list"], ['epsilon']],
-    "Statement": [["Expression-stmt"], ["Compound-stmt"], ["Selection-stmt"], ["Iteration-stmt"], ["Return-stmt"]],
-    "Expression-stmt": [["Expression", ";"], ["break", ";"], [";"]],
-    "Selection-stmt": [["if", "(", "Expression", ")", "Statement", "else", "Statement"]],
-    "Iteration-stmt": [["repeat", "Statement", "until", "(", "Expression", ")"]],
-    "Return-stmt": [["return", "Return-stmt-prime"]],
-    "Return-stmt-prime": [[";"], ["Expression", ";"]],
-    "Expression": [["Simple-expression-zegond"], ["ID", "B"]],
-    "B": [["=", "Expression"], ["[", "Expression", "]", "H"], ["Simple-expression-prime"]],
-    "H": [["=", "Expression"], ["G", "D", "C"]],
-    "Simple-expression-zegond": [["Additive-expression-zegond", "C"]],
-    "Simple-expression-prime": [["Additive-expression-prime", "C"]],
-    "C": [["Relop", "Additive-expression"], ['epsilon']],
-    "Relop": [["<"], ["=="]],
-    "Additive-expression": [["Term", "D"]],
-    "Additive-expression-prime": [["Term-prime", "D"]],
-    "Additive-expression-zegond": [["Term-zegond", "D"]],
-    "D": [["Addop", "Term", "D"], ['epsilon']],
-    "Addop": [["+"], ["-"]],
-    "Term": [["Factor", "G"]],
-    "Term-prime": [["Factor-prime", "G"]],
-    "Term-zegond": [["Factor-zegond", "G"]],
-    "G": [["*", "Factor", "G"], ['epsilon']],
-    "Factor": [["(", "Expression", ")"], ["ID", "Var-call-prime"], ["NUM"]],
-    "Var-call-prime": [["(", "Args", ")"], ["Var-prime"]],
-    "Var-prime": [["[", "Expression", "]"], ['epsilon']],
-    "Factor-prime": [["(", "Args", ")"], ['epsilon']],
-    "Factor-zegond": [["(", "Expression", ")"], ["NUM"]],
-    "Args": [["Arg-list"], ['epsilon']],
-    "Arg-list": [["Expression", "Arg-list-prime"]],
-    "Arg-list-prime": [[",", "Expression", "Arg-list-prime"], ['epsilon']]
-}
+
+# write symbol table
+def write_symbol_table(scanner, output_file):
+    with open(output_file + 'symbol_table.txt', 'w') as f:
+        symbols = scanner.SYMBOL_TABLE['keyword'].copy()
+        symbols.extend(scanner.SYMBOL_TABLE['id'])
+        for i, symbol in enumerate(symbols):
+            f.write(f'{i + 1}.\t{symbol}\n')
+
+
+def write_tokens(scanner, output_file):
+    with open(output_file + 'tokens.txt', 'w') as f:
+        for line in scanner.tokens:
+            if len(scanner.tokens[line]) == 0:
+                continue
+            f.write(f'{line}.\t')
+            for token in scanner.tokens[line]:
+                f.write('(' + str(token.type) + ', ' + token.value + ') ')
+            f.write('\n')
+
+
+EPSILON = "epsilon"
 
 
 def get_token_type(char):
@@ -109,13 +95,30 @@ def print_short_comment(comment):
 
 
 def read_grammar_data():
-    with open("data.json", "r") as f:
+    with open("assets/data.json", "r") as f:
         data = json.load(f)
         terminals = data["terminals"]
         non_terminals = data["non-terminals"]
         first = data["first"]
         follow = data["follow"]
         return terminals, non_terminals, first, follow
+
+def convert_grammar_to_rule_dict(filename):
+    rules = {}
+    with open(filename, "r") as f:
+        for line in f:
+            line = line.strip()
+            if line == "":
+                continue
+            lhs, rhs = line.split("->")
+            lhs = lhs.strip()
+            rhs = rhs.strip()
+            if lhs not in rules:
+                rules[lhs] = []
+            rhs = rhs.split(" ")
+            rhs = [x.strip() for x in rhs]
+            rules[lhs].append(rhs)
+    return rules
 
 
 class State:
@@ -177,8 +180,81 @@ class TransitionDiagram:
         return rules[0], rules[1:]
 
 
+class ActionSymbol(Enum):
+    Output = 'output'
+    JpFrom = 'jp_from'
+    InitRf = 'init_rf'
+    Pid = 'pid'
+    Pnum = 'pnum'
+    Prv = 'prv'
+    Parray = 'parray'
+    Ptype = 'ptype'
+    Pop = 'pop'
+    DeclareArray = 'declare_array'
+    ArrayType = 'array_type'
+    DeclareFunction = 'declare_function'
+    CaptureParamType = 'capture_param_type'
+    DeclareId = 'declare_id'
+    Declare = 'declare'
+    Assign = 'assign'
+    OpExec = 'op_exec'
+    OpPush = 'op_push'
+    Hold = 'hold'
+    Label = 'label'
+    Decide = 'decide'
+    JpfRepeat = 'jpf_repeat'
+    FunctionCall = 'function_call'
+    FunctionReturn = 'function_return'
+    ArgInit = 'arg_init'
+    ArgFinish = 'arg_finish'
+    ArgPass = 'arg_pass'
+    FunctionScope = 'function_scope'
+    ContainerScope = 'container_scope'
+    TemporaryScope = 'temporary_scope'
+    SimpleScope = 'simple_scope'
+    ScopeStart = 'scope_start'
+    ScopeEnd = 'scope_end'
+    Prison = 'prison'
+    PrisonBreak = 'prison_break'
+    ExecMain = 'exec_main'
+    SetMainRa = 'set_main_ra'
+    CheckDeclarationType = 'check_declaration_type'
+    CheckInContainer = 'check_in_container'
+
+    def __str__(self) -> str:
+        return f'#{self.value}'
+
+
+class Operation(Enum):
+    Add = "ADD"
+    Mult = "MULT"
+    Sub = "SUB"
+    Eq = "EQ"
+    Lt = 'LT'
+    Assign = 'ASSIGN'
+    Jpf = 'JPF'
+    Jp = 'JP'
+    Print = 'PRINT'
+    Empty = ''
+
+    @staticmethod
+    def get_operation(symbol):
+        return OPERATIONS.get(symbol, Operation.Empty)
+
+
+OPERATIONS: dict[str, Operation] = {
+    '+': Operation.Add,
+    '*': Operation.Mult,
+    '-': Operation.Sub,
+    '==': Operation.Eq,
+    '<': Operation.Lt,
+}
+
+
 if __name__ == '__main__':
-    rule = "B", [["=", "Expression"], ["[", "Expression", "]", "H"], ["Simple-expression-prime"]]
-    print(rule)
-    # transition_diagram = TransitionDiagram(rule)
-    # print(transition_diagram.derive_rules())
+    # with open("assets/rules.json", 'w') as f:
+    #     json.dump(rule_dict, f)
+    rules = convert_grammar_to_rule_dict("assets/grammar.txt")
+    rule_dict = convert_grammar_to_rule_dict("assets/grammar_with_actions.txt")
+    # check if rules and rule_dict are the same
+    print(rule_dict)

@@ -1,0 +1,76 @@
+Program -> Declaration-list
+Declaration-list -> Declaration Declaration-list
+Declaration-list -> epsilon
+Declaration -> Declaration-initial Declaration-prime
+Declaration-initial -> #get_id_type Type-specifier #pid ID
+Declaration-prime -> Fun-declaration-prime
+Declaration-prime -> Var-declaration-prime
+Var-declaration-prime -> ; #def_var
+Var-declaration-prime -> [ #pnum NUM ] ; #def_arr
+Fun-declaration-prime -> ( Params ) Compound-stmt
+Type-specifier -> int
+Type-specifier -> void
+Params -> int ID Param-prime Param-list
+Params -> void
+Param-list -> , Param Param-list
+Param-list -> epsilon
+Param -> Declaration-initial Param-prime
+Param-prime -> [ ]
+Param-prime -> epsilon
+Compound-stmt -> #push_scope { Declaration-list Statement-list } #pop_scope
+Statement-list -> Statement Statement-list
+Statement-list -> epsilon
+Statement -> Expression-stmt
+Statement -> Compound-stmt
+Statement -> Selection-stmt
+Statement -> Iteration-stmt
+Statement -> Return-stmt
+Expression-stmt -> Expression ; #clean_up
+Expression-stmt -> break ; #break
+Expression-stmt -> ;
+Selection-stmt -> if ( Expression ) #save Statement else #jpf_save Statement #jmp
+Iteration-stmt -> repeat #label Statement until ( Expression ) #until
+Return-stmt -> return Return-stmt-prime
+Return-stmt-prime -> ;
+Return-stmt-prime -> Expression ;
+Expression -> Simple-expression-zegond
+Expression -> #pid_addr ID B
+B -> = Expression #assign_opr
+B -> [ Expression ] #arr_idx H
+B -> Simple-expression-prime
+H -> = Expression #assign_opr
+H -> G D C
+Simple-expression-zegond -> Additive-expression-zegond C
+Simple-expression-prime -> Additive-expression-prime C
+C -> #push_opr Relop Additive-expression #save_opr
+C -> epsilon
+Relop -> <
+Relop -> ==
+Additive-expression -> Term D
+Additive-expression-prime -> Term-prime D
+Additive-expression-zegond -> Term-zegond D
+D -> #popr Addop Term #save_opr D
+D -> epsilon
+Addop -> +
+Addop -> -
+Term -> Factor G
+Term-prime -> Factor-prime G
+Term-zegond -> Factor-zegond G
+G -> * Factor #mult G
+G -> epsilon
+Factor -> ( Expression )
+Factor -> #pid_addr ID Var-call-prime
+Factor -> #pnum NUM
+Var-call-prime -> ( Args #output )
+Var-call-prime -> Var-prime
+Var-prime -> [ Expression ] #arr_idx
+Var-prime -> epsilon
+Factor-prime -> ( Args #output )
+Factor-prime -> epsilon
+Factor-zegond -> ( Expression )
+Factor-zegond -> #pnum NUM
+Args -> Arg-list
+Args -> epsilon
+Arg-list -> Expression Arg-list-prime
+Arg-list-prime -> , Expression Arg-list-prime
+Arg-list-prime -> epsilon

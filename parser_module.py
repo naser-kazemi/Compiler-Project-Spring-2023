@@ -77,9 +77,10 @@ class Parser:
         self.stack.append(("Program", None))
         while self.stack[-1][0] != "$":
             current_expression = self.stack[-1][0]
+
+            # TODO: check if current_expression is action symbol or not
+
             if current_expression not in self.non_terminals or current_expression == EPSILON:
-                # print(token, get_token_type_for_grammar(token), current_expression)
-                # print(current_expression, token)
                 if get_token_type_for_grammar(token) == current_expression or current_expression == EPSILON:
                     current_node, parent = self.stack.pop()
                     if current_expression == EPSILON:
@@ -123,10 +124,6 @@ def main():
     print("Non-terminals:", non_terminals)
     print("First:", first)
     print("Follow:", follow)
-
-
-def makeTree(scanner):
-    pass
 
 
 if __name__ == '__main__':
