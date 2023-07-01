@@ -15,7 +15,12 @@ class Parser:
         self.transitionDiagrams = {}
         self.createTDs()
         self.stack = []
-        self.terminals, self.non_terminals, self.first, self.follow = read_grammar_data()
+        (
+            self.terminals,
+            self.non_terminals,
+            self.first,
+            self.follow,
+        ) = read_grammar_data()
         self.root = None
         self.syntax_error = []
 
@@ -80,8 +85,14 @@ class Parser:
 
             # TODO: check if current_expression is action symbol or not
 
-            if current_expression not in self.non_terminals or current_expression == EPSILON:
-                if get_token_type_for_grammar(token) == current_expression or current_expression == EPSILON:
+            if (
+                current_expression not in self.non_terminals
+                or current_expression == EPSILON
+            ):
+                if (
+                    get_token_type_for_grammar(token) == current_expression
+                    or current_expression == EPSILON
+                ):
                     current_node, parent = self.stack.pop()
                     if current_expression == EPSILON:
                         Node(current_expression, parent)
@@ -90,7 +101,9 @@ class Parser:
                         token = self.get_next_token()
                 else:
                     self.stack.pop()
-                    self.syntax_error.append(f"#{token.line_num} : syntax error, missing {current_expression}")
+                    self.syntax_error.append(
+                        f"#{token.line_num} : syntax error, missing {current_expression}"
+                    )
             else:
                 transition_diagram = self.transitionDiagrams[current_expression]
                 path_on_diagram = self.get_path_on_diagram(token, transition_diagram)
@@ -104,15 +117,23 @@ class Parser:
                         self.stack.append((item, parent))
                 else:
                     if token.value == "$" and len(self.stack) > 1:
-                        self.syntax_error.append(f"#{token.line_num} : syntax error, Unexpected EOF")
+                        self.syntax_error.append(
+                            f"#{token.line_num} : syntax error, Unexpected EOF"
+                        )
                         is_eof = True
                         break
-                    if get_token_type_for_grammar(token) in self.follow[current_expression]:
+                    if (
+                        get_token_type_for_grammar(token)
+                        in self.follow[current_expression]
+                    ):
                         self.stack.pop()
-                        self.syntax_error.append(f"#{token.line_num} : syntax error, missing {current_expression}")
+                        self.syntax_error.append(
+                            f"#{token.line_num} : syntax error, missing {current_expression}"
+                        )
                     else:
                         self.syntax_error.append(
-                            f"#{token.line_num} : syntax error, illegal {get_token_type_for_grammar(token)}")
+                            f"#{token.line_num} : syntax error, illegal {get_token_type_for_grammar(token)}"
+                        )
                         token = self.get_next_token()
         if not is_eof:
             Node("$", self.root)
@@ -126,5 +147,5 @@ def main():
     print("Follow:", follow)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

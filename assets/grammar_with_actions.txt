@@ -2,20 +2,20 @@ Program -> Declaration-list
 Declaration-list -> Declaration Declaration-list
 Declaration-list -> epsilon
 Declaration -> Declaration-initial Declaration-prime
-Declaration-initial -> #get_id_type Type-specifier #pid ID
+Declaration-initial -> #get_id Type-specifier #pid ID
 Declaration-prime -> Fun-declaration-prime
 Declaration-prime -> Var-declaration-prime
 Var-declaration-prime -> ; #def_var
 Var-declaration-prime -> [ #pnum NUM ] ; #def_arr
-Fun-declaration-prime -> ( Params ) Compound-stmt
+Fun-declaration-prime -> #start_params ( Params ) #create_record Compound-stmt
 Type-specifier -> int
 Type-specifier -> void
-Params -> int ID Param-prime Param-list
+Params -> #get_id int #pid ID #def_var Param-prime Param-list
 Params -> void
-Param-list -> , Param Param-list
+Param-list -> , Param #def_var Param-list
 Param-list -> epsilon
 Param -> Declaration-initial Param-prime
-Param-prime -> [ ]
+Param-prime -> #def_arr_args [ ]
 Param-prime -> epsilon
 Compound-stmt -> #push_scope { Declaration-list Statement-list } #pop_scope
 Statement-list -> Statement Statement-list
@@ -26,7 +26,7 @@ Statement -> Selection-stmt
 Statement -> Iteration-stmt
 Statement -> Return-stmt
 Expression-stmt -> Expression ; #clean_up
-Expression-stmt -> break ; #break
+Expression-stmt -> break ; #break_loop
 Expression-stmt -> ;
 Selection-stmt -> if ( Expression ) #save Statement else #jpf_save Statement #jmp
 Iteration-stmt -> repeat #label Statement until ( Expression ) #until
@@ -49,7 +49,7 @@ Relop -> ==
 Additive-expression -> Term D
 Additive-expression-prime -> Term-prime D
 Additive-expression-zegond -> Term-zegond D
-D -> #popr Addop Term #save_opr D
+D -> #push_opr Addop Term #save_opr D
 D -> epsilon
 Addop -> +
 Addop -> -
@@ -61,11 +61,11 @@ G -> epsilon
 Factor -> ( Expression )
 Factor -> #pid_addr ID Var-call-prime
 Factor -> #pnum NUM
-Var-call-prime -> ( Args #output )
+Var-call-prime -> ( Args #output ) #func_call
 Var-call-prime -> Var-prime
 Var-prime -> [ Expression ] #arr_idx
 Var-prime -> epsilon
-Factor-prime -> ( Args #output )
+Factor-prime -> ( Args #output ) #func_call
 Factor-prime -> epsilon
 Factor-zegond -> ( Expression )
 Factor-zegond -> #pnum NUM

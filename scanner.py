@@ -9,17 +9,40 @@ class Token:
         self.line_num = line_num
 
     def __str__(self):
-        return f'({self.type}, {self.value})'
+        return f"({self.type}, {self.value})"
 
     def __repr__(self):
         return str(self)
 
 
+class SymbolTableEntry:
+    def __init__(self, symbol_id, symbol_type, address, scope):
+        self.id = symbol_id
+        self.type = symbol_type
+        self.address = address
+        self.scope = scope
+
+    def __str__(self):
+        return f"({self.id}, {self.type}, {self.address}, {self.scope})"
+
+    def __repr__(self):
+        return str(self)
+
+
+class FunctionArgumentsSymbol(SymbolTableEntry):
+    def __init__(self, symbol_id, symbol_table, idx, scope):
+        args = symbol_table[idx + 1:]
+        super().__init__(symbol_id, "function", "", scope)
+        self.args = args
+
+
 class Scanner:
     def __init__(self, input_file):
+        self.SYMBOL_TABLE = OrderedDict()
+        self.LEXICAL_ERRORS = OrderedDict()
         self.init_scanners()
         self.input_file = input_file
-        self.lines = ''
+        self.lines = ""
 
         self.tokens = OrderedDict()
 
@@ -29,13 +52,20 @@ class Scanner:
         self.read_input()
 
     def init_scanners(self):
-        self.SYMBOL_TABLE = OrderedDict()
-        self.SYMBOL_TABLE['keyword'] = ['break', 'else', 'if', 'int', 'repeat', 'return', 'until', 'void']
-        self.SYMBOL_TABLE['id'] = []
-        self.LEXICAL_ERRORS = OrderedDict()
+        self.SYMBOL_TABLE["keyword"] = [
+            "break",
+            "else",
+            "if",
+            "int",
+            "repeat",
+            "return",
+            "until",
+            "void",
+        ]
+        self.SYMBOL_TABLE["id"] = []
 
     def get_type_from_symbol_table(self, token):
-        if token.value in self.SYMBOL_TABLE['keyword']:
+        if token.value in self.SYMBOL_TABLE["keyword"]:
             return TokenType.KEYWORD
         return TokenType.ID
 
@@ -45,33 +75,43 @@ class Scanner:
         self.LEXICAL_ERRORS[token.line_num].append(error)
 
     def read_input(self):
-        with open(self.input_file, 'r') as f:
+        with open(self.input_file, "r") as f:
             lines = [line for line in f.readlines()]
             for line in range(1, len(lines) + 1):
                 self.tokens[line] = []
-            self.lines = ''.join(lines)
+            self.lines = "".join(lines)
 
     def get_current_char(self):
         return self.lines[self.curser]
 
     def get_symbol_token(self, char):
         # lookahead for = and ==
-        if char == '=':
-            if self.curser + 1 < len(self.lines) and self.lines[self.curser + 1] == '=':
+        if char == "=":
+            if self.curser + 1 < len(self.lines) and self.lines[self.curser + 1] == "=":
                 self.curser += 1
-                return Token(TokenType.SYMBOL, '==', self.line_num), False
+                return Token(TokenType.SYMBOL, "==", self.line_num), False
             if self.curser + 1 < len(self.lines) and not (
-                    self.lines[self.curser + 1].isalpha() or self.lines[self.curser + 1].isdigit() or get_token_type(
-                self.lines[self.curser + 1]) == TokenType.WHITESPACE or self.lines[self.curser + 1] == '/'):
+                    self.lines[self.curser + 1].isalpha()
+                    or self.lines[self.curser + 1].isdigit()
+                    or get_token_type(self.lines[self.curser + 1]) == TokenType.WHITESPACE
+                    or self.lines[self.curser + 1] == "/"
+            ):
                 char += self.lines[self.curser + 1]
                 self.curser += 1
                 return Token(TokenType.INVALID, char, self.line_num), True
         # handle the unmatched comment
-        if char == '*' and self.curser + 1 < len(self.lines) and self.lines[self.curser + 1] == '/':
+        if (
+                char == "*"
+                and self.curser + 1 < len(self.lines)
+                and self.lines[self.curser + 1] == "/"
+        ):
             self.curser += 1
-            return Token(TokenType.UNMATCHED_COMMENT, '*/', self.line_num), True
-        if char in ['*', '-', '+'] and self.curser + 1 < len(self.lines) and get_token_type(
-                self.lines[self.curser + 1]) == TokenType.INVALID:
+            return Token(TokenType.UNMATCHED_COMMENT, "*/", self.line_num), True
+        if (
+                char in ["*", "-", "+"]
+                and self.curser + 1 < len(self.lines)
+                and get_token_type(self.lines[self.curser + 1]) == TokenType.INVALID
+        ):
             char += self.lines[self.curser + 1]
             self.curser += 1
             return Token(TokenType.INVALID, char, self.line_num), True
@@ -124,7 +164,7 @@ class Scanner:
         self.curser += 1
         char = self.get_current_char()
         token_type = get_token_type(char)
-        if char != '*':
+        if char != "*":
             if token_type == TokenType.INVALID:
                 comment += char
                 self.curser += 1
@@ -137,7 +177,7 @@ class Scanner:
             self.curser += 1
             char = self.get_current_char()
             comment += char
-            if char == '*' and self.lines[self.curser + 1] == '/':
+            if char == "*" and self.lines[self.curser + 1] == "/":
                 comment += self.lines[self.curser + 1]
                 self.curser += 1
                 return Token(TokenType.COMMENT, comment, self.line_num), False
@@ -154,7 +194,9 @@ class Scanner:
         # if the token is a whitespace, then skip it and get the next token
         if token_type == TokenType.WHITESPACE:
             self.curser += 1
-            if current_char == '\n':  # if the char is a new line, then increment the line number
+            if (
+                    current_char == "\n"
+            ):  # if the char is a new line, then increment the line number
                 self.line_num += 1
             return self.get_next_token()
 
@@ -163,26 +205,31 @@ class Scanner:
             self.curser += 1
             if is_invalid:
                 if token.type == TokenType.INVALID:
-                    self.add_lexical_error(token, (token.value, 'Invalid input'))
+                    self.add_lexical_error(token, (token.value, "Invalid input"))
                 if token.type == TokenType.UNMATCHED_COMMENT:
-                    return self.add_lexical_error(token, (token.value, 'Unmatched comment'))
+                    return self.add_lexical_error(
+                        token, (token.value, "Unmatched comment")
+                    )
             return token
 
         if token_type == TokenType.NUM:
             token, is_invalid = self.get_num_token()
             if not is_invalid:
                 return token
-            self.add_lexical_error(token, (token.value, 'Invalid number'))
+            self.add_lexical_error(token, (token.value, "Invalid number"))
 
         if token_type == TokenType.IDorKEYWORD:
             token, is_invalid = self.get_id_or_keyword_token()
             if not is_invalid:
-                name, token_type, line_num = token.value, self.get_type_from_symbol_table(
-                    token), token.line_num
-                if name not in self.SYMBOL_TABLE['id'] and token_type == TokenType.ID:
-                    self.SYMBOL_TABLE['id'].append(name)
+                name, token_type, line_num = (
+                    token.value,
+                    self.get_type_from_symbol_table(token),
+                    token.line_num,
+                )
+                if name not in self.SYMBOL_TABLE["id"] and token_type == TokenType.ID:
+                    self.SYMBOL_TABLE["id"].append(name)
                 return Token(token_type, name, line_num)
-            self.add_lexical_error(token, (token.value, 'Invalid input'))
+            self.add_lexical_error(token, (token.value, "Invalid input"))
 
         if token_type == TokenType.COMMENT:
             comment, is_invalid = self.validate_comment_start()
@@ -192,15 +239,20 @@ class Scanner:
                     self.curser += 1
                     return token
                 self.add_lexical_error(
-                    token, (print_short_comment(token.value), 'Unclosed comment'))
+                    token, (print_short_comment(token.value), "Unclosed comment")
+                )
             else:
                 self.add_lexical_error(
-                    Token(TokenType.COMMENT, comment, self.line_num), (print_short_comment(comment), 'Invalid input'))
+                    Token(TokenType.COMMENT, comment, self.line_num),
+                    (print_short_comment(comment), "Invalid input"),
+                )
 
         if token_type == TokenType.INVALID:
             self.curser += 1
-            self.add_lexical_error(Token(TokenType.INVALID, current_char, self.line_num),
-                                   (current_char, 'Invalid input'))
+            self.add_lexical_error(
+                Token(TokenType.INVALID, current_char, self.line_num),
+                (current_char, "Invalid input"),
+            )
 
     def is_eof(self):
         return self.curser >= len(self.lines)
@@ -208,6 +260,10 @@ class Scanner:
     def read_tokens(self):
         while not self.is_eof():
             token = self.get_next_token()
-            if token and token.type != TokenType.WHITESPACE and token.type != TokenType.COMMENT and \
-                    token.type != TokenType.INVALID:
+            if (
+                    token
+                    and token.type != TokenType.WHITESPACE
+                    and token.type != TokenType.COMMENT
+                    and token.type != TokenType.INVALID
+            ):
                 self.tokens[token.line_num].append(token)

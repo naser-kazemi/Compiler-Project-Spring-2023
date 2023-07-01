@@ -7,8 +7,12 @@
 # test all test files in the PA1_testcases directory
 # and compare the output with the expected output
 
+#clear the output and diff directories
+rm -rif output/*
+rm -rif diff/*
+
 # test_directory variable contains the path to the directory containing the test files
-test_directory="PA1_testcases"
+test_directory="PA3_testcases"
 # iterate through all folders in the test_directory
 for folder in $test_directory/*; do
     # if the folder is not a directory, skip it
@@ -21,8 +25,7 @@ for folder in $test_directory/*; do
     mkdir -p "output/$folder_name"
     # iterate through all files in the folder
 
-    input_directory="PA1_testcases/$folder_name"
-
+    input_directory="$test_directory/$folder_name"
 
     # if the file is a .jack file, compile it
     python3 compiler.py "$input_directory" "$folder_name"

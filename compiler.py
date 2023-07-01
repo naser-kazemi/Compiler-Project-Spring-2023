@@ -4,23 +4,23 @@ from parser_module import Parser
 import sys
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # get argument from command line
     if len(sys.argv) < 2:
-        input_dir = ''
-        output_dir = ''
+        input_dir = ""
+        output_dir = ""
     else:
-        input_dir = sys.argv[1] + '/'
-        output_dir = 'output/' + sys.argv[2] + '/'
-    scanner = Scanner(input_dir + 'input.txt')
+        input_dir = sys.argv[1] + "/"
+        output_dir = "output/" + sys.argv[2] + "/"
+    scanner = Scanner(input_dir + "input.txt")
     rule_dict = convert_grammar_to_rule_dict("assets/grammar.txt")
     parser = Parser(scanner, rule_dict)
     parser.parse()
-    with open("parse_tree.txt", 'w') as output:
+    with open("parse_tree.txt", "w") as output:
         for pre, fill, node in RenderTree(parser.root):
             output.write("%s%s\n" % (pre, node.name))
 
-    with open("syntax_errors.txt", 'w') as output:
+    with open("syntax_errors.txt", "w") as output:
         if parser.syntax_error:
             for error in parser.syntax_error:
                 output.write(f"{error}\n")

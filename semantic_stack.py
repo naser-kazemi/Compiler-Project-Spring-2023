@@ -7,7 +7,7 @@ class StackEntry:
         self.description = description
 
     def __repr__(self):
-        return f'{self.value} ({self.description})'
+        return f"{self.value} ({self.description})"
 
     def __str__(self):
         return self.__repr__()

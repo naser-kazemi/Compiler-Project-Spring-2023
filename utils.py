@@ -6,25 +6,25 @@ from anytree import Node, RenderTree
 
 
 class TokenType(Enum):
-    NUM = 'NUM'
-    IDorKEYWORD = 'IDorKEYWORD'
-    ID = 'ID'
-    KEYWORD = 'KEYWORD'
-    SYMBOL = 'SYMBOL'
-    COMMENT = 'COMMENT'
-    WHITESPACE = 'WHITESPACE'
-    INVALID = 'INVALID'
-    UNMATCHED_COMMENT = 'UNMATCHED_COMMENT'
+    NUM = "NUM"
+    IDorKEYWORD = "IDorKEYWORD"
+    ID = "ID"
+    KEYWORD = "KEYWORD"
+    SYMBOL = "SYMBOL"
+    COMMENT = "COMMENT"
+    WHITESPACE = "WHITESPACE"
+    INVALID = "INVALID"
+    UNMATCHED_COMMENT = "UNMATCHED_COMMENT"
 
     # reserved words
-    IF = 'if'
-    ELSE = 'else'
-    VOID = 'void'
-    INT = 'int'
-    REPEAT = 'repeat'
-    BREAK = 'break'
-    UNTIL = 'until'
-    RETURN = 'return'
+    IF = "if"
+    ELSE = "else"
+    VOID = "void"
+    INT = "int"
+    REPEAT = "repeat"
+    BREAK = "break"
+    UNTIL = "until"
+    RETURN = "return"
 
     def __str__(self):
         return self.value
@@ -32,35 +32,35 @@ class TokenType(Enum):
 
 # write lexical errors
 def write_lexical_errors(scanner, output_file):
-    with open(output_file + 'lexical_errors.txt', 'w') as f:
+    with open(output_file + "lexical_errors.txt", "w") as f:
         if len(scanner.LEXICAL_ERRORS) == 0:
-            f.write('There is no lexical error.')
+            f.write("There is no lexical error.")
         else:
             for line in scanner.LEXICAL_ERRORS:
-                f.write(f'{line}.\t')
+                f.write(f"{line}.\t")
                 for error in scanner.LEXICAL_ERRORS[line]:
-                    f.write(f'({error[0]}, {error[1]}) ')
-                f.write('\n')
+                    f.write(f"({error[0]}, {error[1]}) ")
+                f.write("\n")
 
 
 # write symbol table
 def write_symbol_table(scanner, output_file):
-    with open(output_file + 'symbol_table.txt', 'w') as f:
-        symbols = scanner.SYMBOL_TABLE['keyword'].copy()
-        symbols.extend(scanner.SYMBOL_TABLE['id'])
+    with open(output_file + "symbol_table.txt", "w") as f:
+        symbols = scanner.SYMBOL_TABLE["keyword"].copy()
+        symbols.extend(scanner.SYMBOL_TABLE["id"])
         for i, symbol in enumerate(symbols):
-            f.write(f'{i + 1}.\t{symbol}\n')
+            f.write(f"{i + 1}.\t{symbol}\n")
 
 
 def write_tokens(scanner, output_file):
-    with open(output_file + 'tokens.txt', 'w') as f:
+    with open(output_file + "tokens.txt", "w") as f:
         for line in scanner.tokens:
             if len(scanner.tokens[line]) == 0:
                 continue
-            f.write(f'{line}.\t')
+            f.write(f"{line}.\t")
             for token in scanner.tokens[line]:
-                f.write('(' + str(token.type) + ', ' + token.value + ') ')
-            f.write('\n')
+                f.write("(" + str(token.type) + ", " + token.value + ") ")
+            f.write("\n")
 
 
 EPSILON = "epsilon"
@@ -71,11 +71,11 @@ def get_token_type(char):
         return TokenType.NUM
     if char.isalnum():
         return TokenType.IDorKEYWORD
-    if char in ['+', '-', '*', '(', ')', '{', '}', '[', ']', ',', ';', '=', '<', '>']:
+    if char in ["+", "-", "*", "(", ")", "{", "}", "[", "]", ",", ";", "=", "<", ">"]:
         return TokenType.SYMBOL
-    if char in [' ', '\t', '\n', '\r', '\v', '\f', '']:
+    if char in [" ", "\t", "\n", "\r", "\v", "\f", ""]:
         return TokenType.WHITESPACE
-    if char == '/':
+    if char == "/":
         return TokenType.COMMENT
     return TokenType.INVALID
 
@@ -91,7 +91,7 @@ def get_token_type_for_grammar(token):
 
 
 def print_short_comment(comment):
-    return comment[:7] + '...' if len(comment) > 7 else comment
+    return comment[:7] + "..." if len(comment) > 7 else comment
 
 
 def read_grammar_data():
@@ -102,6 +102,7 @@ def read_grammar_data():
         first = data["first"]
         follow = data["follow"]
         return terminals, non_terminals, first, follow
+
 
 def convert_grammar_to_rule_dict(filename):
     rules = {}
@@ -130,7 +131,6 @@ class State:
 
 
 class Transition:
-
     def __init__(self, name, start, end):
         self.value = name
         self.start = start
@@ -140,7 +140,6 @@ class Transition:
 
 
 class TransitionDiagram:
-
     def __init__(self, rule):
         self.rule = rule
         self.lhs = rule[0]
@@ -181,48 +180,48 @@ class TransitionDiagram:
 
 
 class ActionSymbol(Enum):
-    Output = 'output'
-    JpFrom = 'jp_from'
-    InitRf = 'init_rf'
-    Pid = 'pid'
-    Pnum = 'pnum'
-    Prv = 'prv'
-    Parray = 'parray'
-    Ptype = 'ptype'
-    Pop = 'pop'
-    DeclareArray = 'declare_array'
-    ArrayType = 'array_type'
-    DeclareFunction = 'declare_function'
-    CaptureParamType = 'capture_param_type'
-    DeclareId = 'declare_id'
-    Declare = 'declare'
-    Assign = 'assign'
-    OpExec = 'op_exec'
-    OpPush = 'op_push'
-    Hold = 'hold'
-    Label = 'label'
-    Decide = 'decide'
-    JpfRepeat = 'jpf_repeat'
-    FunctionCall = 'function_call'
-    FunctionReturn = 'function_return'
-    ArgInit = 'arg_init'
-    ArgFinish = 'arg_finish'
-    ArgPass = 'arg_pass'
-    FunctionScope = 'function_scope'
-    ContainerScope = 'container_scope'
-    TemporaryScope = 'temporary_scope'
-    SimpleScope = 'simple_scope'
-    ScopeStart = 'scope_start'
-    ScopeEnd = 'scope_end'
-    Prison = 'prison'
-    PrisonBreak = 'prison_break'
-    ExecMain = 'exec_main'
-    SetMainRa = 'set_main_ra'
-    CheckDeclarationType = 'check_declaration_type'
-    CheckInContainer = 'check_in_container'
+    Output = "output"
+    JpFrom = "jp_from"
+    InitRf = "init_rf"
+    Pid = "pid"
+    Pnum = "pnum"
+    Prv = "prv"
+    Parray = "parray"
+    Ptype = "ptype"
+    Pop = "pop"
+    DeclareArray = "declare_array"
+    ArrayType = "array_type"
+    DeclareFunction = "declare_function"
+    CaptureParamType = "capture_param_type"
+    DeclareId = "declare_id"
+    Declare = "declare"
+    Assign = "assign"
+    OpExec = "op_exec"
+    OpPush = "op_push"
+    Hold = "hold"
+    Label = "label"
+    Decide = "decide"
+    JpfRepeat = "jpf_repeat"
+    FunctionCall = "function_call"
+    FunctionReturn = "function_return"
+    ArgInit = "arg_init"
+    ArgFinish = "arg_finish"
+    ArgPass = "arg_pass"
+    FunctionScope = "function_scope"
+    ContainerScope = "container_scope"
+    TemporaryScope = "temporary_scope"
+    SimpleScope = "simple_scope"
+    ScopeStart = "scope_start"
+    ScopeEnd = "scope_end"
+    Prison = "prison"
+    PrisonBreak = "prison_break"
+    ExecMain = "exec_main"
+    SetMainRa = "set_main_ra"
+    CheckDeclarationType = "check_declaration_type"
+    CheckInContainer = "check_in_container"
 
     def __str__(self) -> str:
-        return f'#{self.value}'
+        return f"#{self.value}"
 
 
 class Operation(Enum):
@@ -230,12 +229,12 @@ class Operation(Enum):
     Mult = "MULT"
     Sub = "SUB"
     Eq = "EQ"
-    Lt = 'LT'
-    Assign = 'ASSIGN'
-    Jpf = 'JPF'
-    Jp = 'JP'
-    Print = 'PRINT'
-    Empty = ''
+    Lt = "LT"
+    Assign = "ASSIGN"
+    Jpf = "JPF"
+    Jp = "JP"
+    Print = "PRINT"
+    Empty = ""
 
     @staticmethod
     def get_operation(symbol):
@@ -243,15 +242,14 @@ class Operation(Enum):
 
 
 OPERATIONS: dict[str, Operation] = {
-    '+': Operation.Add,
-    '*': Operation.Mult,
-    '-': Operation.Sub,
-    '==': Operation.Eq,
-    '<': Operation.Lt,
+    "+": Operation.Add,
+    "*": Operation.Mult,
+    "-": Operation.Sub,
+    "==": Operation.Eq,
+    "<": Operation.Lt,
 }
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     # with open("assets/rules.json", 'w') as f:
     #     json.dump(rule_dict, f)
     rules = convert_grammar_to_rule_dict("assets/grammar.txt")

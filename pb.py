@@ -11,11 +11,14 @@ class Instruction:
 
     @staticmethod
     def empty():
-        return Instruction(Operation.Empty, '', '', '')
+        return Instruction(Operation.Empty, "", "", "")
 
     def __repr__(self) -> str:
-        return f'{self.operation.value} {self.arg1} {self.arg2} {self.result}' \
-            if self.operation != Operation.Empty else ''
+        return (
+            f"{self.operation.value} {self.arg1} {self.arg2} {self.result}"
+            if self.operation != Operation.Empty
+            else ""
+        )
 
 
 class ProgramBlock:
@@ -31,7 +34,9 @@ class ProgramBlock:
         if value < self.i:
             self.instructions = self.instructions[:value]
         else:
-            self.instructions.extend([Instruction.empty() for _ in range(value - self.i)])
+            self.instructions.extend(
+                [Instruction.empty() for _ in range(value - self.i)]
+            )
 
     def append(self, instruction: Instruction):
         self.instructions.append(instruction)
@@ -43,4 +48,4 @@ class ProgramBlock:
         return self.instructions[key]
 
     def __str__(self) -> str:
-        return '\n'.join([f'{i}\t{inst}' for i, inst in enumerate(self.instructions)])
+        return "\n".join([f"{i}\t{inst}" for i, inst in enumerate(self.instructions)])
