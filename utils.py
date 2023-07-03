@@ -47,7 +47,7 @@ def write_lexical_errors(scanner, output_file):
 def write_symbol_table(scanner, output_file):
     with open(output_file + "symbol_table.txt", "w") as f:
         symbols = scanner.SYMBOL_TABLE["keyword"].copy()
-        symbols.extend(scanner.SYMBOL_TABLE["id"])
+        symbols.extend(scanner.SYMBOL_TABLE["names"])
         for i, symbol in enumerate(symbols):
             f.write(f"{i + 1}.\t{symbol}\n")
 
@@ -69,7 +69,7 @@ EPSILON = "epsilon"
 def get_token_type(char):
     if char.isdigit():
         return TokenType.NUM
-    if char.isalnum():
+    if char.isalnum() or char == "_":
         return TokenType.IDorKEYWORD
     if char in ["+", "-", "*", "(", ")", "{", "}", "[", "]", ",", ";", "=", "<", ">"]:
         return TokenType.SYMBOL
@@ -240,6 +240,12 @@ class Operation(Enum):
     def get_operation(symbol):
         return OPERATIONS.get(symbol, Operation.Empty)
 
+    def __repr__(self):
+        return self.value
+
+    def __str__(self):
+        return self.__repr__()
+
 
 OPERATIONS: dict[str, Operation] = {
     "+": Operation.Add,
@@ -248,6 +254,11 @@ OPERATIONS: dict[str, Operation] = {
     "==": Operation.Eq,
     "<": Operation.Lt,
 }
+
+
+def last_index_of(lst, item):
+    return len(lst) - 1 - lst[::-1].index(item)
+
 
 if __name__ == "__main__":
     # with open("assets/rules.json", 'w') as f:

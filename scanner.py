@@ -29,11 +29,34 @@ class SymbolTableEntry:
         return str(self)
 
 
-class FunctionArgumentsSymbol(SymbolTableEntry):
-    def __init__(self, symbol_id, symbol_table, idx, scope):
-        args = symbol_table[idx + 1:]
-        super().__init__(symbol_id, "function", "", scope)
-        self.args = args
+class FunctionRecordEntry(SymbolTableEntry):
+    def __init__(
+            self,
+            return_address,
+            return_value,
+            func_id,
+            index,
+            symbol_table,
+            args_start,
+            scope,
+    ):
+        super().__init__(func_id, "function", "", scope)
+        self.return_address = return_address
+        self.return_value = return_value
+        self.index = index
+        self.args = symbol_table[args_start + 1:]
+
+    @staticmethod
+    def empty_instance():
+        empty = FunctionRecordEntry("", "", "", "", [0, 0], 0, -1)
+        empty.args = []
+        return empty
+
+    def __repr__(self):
+        return f"({self.id}, {self.type}, [{self.return_value}, {self.args}, {self.return_address}, {self.index}], {self.scope})"
+
+    def __str__(self):
+        return self.__repr__()
 
 
 class Scanner:
@@ -63,6 +86,7 @@ class Scanner:
             "void",
         ]
         self.SYMBOL_TABLE["id"] = []
+        self.SYMBOL_TABLE["names"] = []
 
     def get_type_from_symbol_table(self, token):
         if token.value in self.SYMBOL_TABLE["keyword"]:
@@ -227,7 +251,7 @@ class Scanner:
                     token.line_num,
                 )
                 if name not in self.SYMBOL_TABLE["id"] and token_type == TokenType.ID:
-                    self.SYMBOL_TABLE["id"].append(name)
+                    self.SYMBOL_TABLE["names"].append(SymbolTableEntry(name, token_type, None, None))
                 return Token(token_type, name, line_num)
             self.add_lexical_error(token, (token.value, "Invalid input"))
 

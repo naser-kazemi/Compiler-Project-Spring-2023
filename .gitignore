@@ -324,3 +324,7 @@ pip-selfcheck.json
 .dist
 
 .idea
+
+input.txt
+output.txt
+semantic_errors.txt

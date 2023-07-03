@@ -7,15 +7,15 @@ Declaration-prime -> Fun-declaration-prime
 Declaration-prime -> Var-declaration-prime
 Var-declaration-prime -> ; #def_var
 Var-declaration-prime -> [ #pnum NUM ] ; #def_arr
-Fun-declaration-prime -> #start_params ( Params ) #create_record Compound-stmt
+Fun-declaration-prime -> #start_params ( Params ) #create_record Compound-stmt #end_func
 Type-specifier -> int
 Type-specifier -> void
 Params -> #get_id int #pid ID #def_var Param-prime Param-list
 Params -> void
-Param-list -> , Param #def_var Param-list
+Param-list -> , Param Param-list
 Param-list -> epsilon
-Param -> Declaration-initial Param-prime
-Param-prime -> #def_arr_args [ ]
+Param -> Declaration-initial #def_var Param-prime
+Param-prime -> #def_arr_arg [ ]
 Param-prime -> epsilon
 Compound-stmt -> #push_scope { Declaration-list Statement-list } #pop_scope
 Statement-list -> Statement Statement-list
@@ -26,12 +26,12 @@ Statement -> Selection-stmt
 Statement -> Iteration-stmt
 Statement -> Return-stmt
 Expression-stmt -> Expression ; #clean_up
-Expression-stmt -> break ; #break_loop
+Expression-stmt -> break #break_loop ;
 Expression-stmt -> ;
 Selection-stmt -> if ( Expression ) #save Statement else #jpf_save Statement #jmp
-Iteration-stmt -> repeat #label Statement until ( Expression ) #until
-Return-stmt -> return Return-stmt-prime
-Return-stmt-prime -> ;
+Iteration-stmt -> repeat #label #new_break Statement until ( Expression ) #until #end_break
+Return-stmt -> return Return-stmt-prime #save_return
+Return-stmt-prime -> #push_idx ;
 Return-stmt-prime -> Expression ;
 Expression -> Simple-expression-zegond
 Expression -> #pid_addr ID B

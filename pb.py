@@ -3,7 +3,7 @@ from typing import List, OrderedDict, Union
 
 
 class Instruction:
-    def __init__(self, operation: Operation, arg1: str, arg2: str, result: str):
+    def __init__(self, operation: Operation, arg1, arg2, result):
         self.operation = operation
         self.arg1 = arg1
         self.arg2 = arg2
@@ -13,12 +13,8 @@ class Instruction:
     def empty():
         return Instruction(Operation.Empty, "", "", "")
 
-    def __repr__(self) -> str:
-        return (
-            f"{self.operation.value} {self.arg1} {self.arg2} {self.result}"
-            if self.operation != Operation.Empty
-            else ""
-        )
+    def __repr__(self) :
+        return f"({self.operation}, {self.arg1}, {self.arg2}, {self.result})"
 
 
 class ProgramBlock:
@@ -38,7 +34,7 @@ class ProgramBlock:
                 [Instruction.empty() for _ in range(value - self.i)]
             )
 
-    def append(self, instruction: Instruction):
+    def append(self, instruction):
         self.instructions.append(instruction)
 
     def __setitem__(self, key, value):
@@ -47,5 +43,5 @@ class ProgramBlock:
     def __getitem__(self, key):
         return self.instructions[key]
 
-    def __str__(self) -> str:
+    def __str__(self):
         return "\n".join([f"{i}\t{inst}" for i, inst in enumerate(self.instructions)])

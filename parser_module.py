@@ -1,5 +1,6 @@
 from utils import *
 from scanner import Scanner, Token
+from codegen import CodeGenerator
 
 START_PRODUCTION_RULE = "Program"
 NON_TERMINAL = "NON_TERMINAL"
@@ -11,6 +12,7 @@ MISMATCH = "MISMATCH"
 class Parser:
     def __init__(self, scanner, rule_dict):
         self.scanner = scanner
+        self.code_generator = CodeGenerator(self.scanner)
         self.rule_dict = rule_dict
         self.transitionDiagrams = {}
         self.createTDs()
@@ -32,6 +34,8 @@ class Parser:
     def compute_first(self, rhs):
         first_list = []
         for item in rhs:
+            if item.startswith("#"):
+                continue
             if item in self.terminals:
                 first_list.append(item)
                 return first_list
@@ -84,14 +88,17 @@ class Parser:
             current_expression = self.stack[-1][0]
 
             # TODO: check if current_expression is action symbol or not
-
+            if current_expression.startswith("#"):
+                self.code_generator.call_routine(current_expression, token)
+                self.stack.pop()
+                continue
             if (
-                current_expression not in self.non_terminals
-                or current_expression == EPSILON
+                    current_expression not in self.non_terminals
+                    or current_expression == EPSILON
             ):
                 if (
-                    get_token_type_for_grammar(token) == current_expression
-                    or current_expression == EPSILON
+                        get_token_type_for_grammar(token) == current_expression
+                        or current_expression == EPSILON
                 ):
                     current_node, parent = self.stack.pop()
                     if current_expression == EPSILON:
@@ -123,8 +130,8 @@ class Parser:
                         is_eof = True
                         break
                     if (
-                        get_token_type_for_grammar(token)
-                        in self.follow[current_expression]
+                            get_token_type_for_grammar(token)
+                            in self.follow[current_expression]
                     ):
                         self.stack.pop()
                         self.syntax_error.append(

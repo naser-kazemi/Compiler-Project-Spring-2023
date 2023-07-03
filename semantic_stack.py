@@ -7,6 +7,8 @@ class StackEntry:
         self.description = description
 
     def __repr__(self):
+        if self.description == "":
+            return f"{self.value}"
         return f"{self.value} ({self.description})"
 
     def __str__(self):
@@ -20,7 +22,12 @@ class SemanticStack:
     def push(self, item, description=""):
         self.stack.append(StackEntry(item, description))
 
-    def pop(self):
+    def pop(self, count=1):
+        if count != 1:
+            entries = []
+            for _ in range(count):
+                entries.append(self.stack.pop().value)
+            return tuple(entries)
         entry = self.stack.pop()
         if entry.description:
             return entry.value, entry.description
@@ -35,3 +42,12 @@ class SemanticStack:
     @property
     def size(self):
         return len(self.stack)
+
+    def empty(self):
+        return self.size == 0
+
+    def __repr__(self):
+        return str(self.stack)
+
+    def __str__(self):
+        return self.__repr__()
