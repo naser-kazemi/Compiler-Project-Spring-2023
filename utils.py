@@ -3,6 +3,7 @@ import json
 import anytree
 from anytree import Node, RenderTree
 from collections import OrderedDict
+import pickle
 
 
 class TokenType(Enum):
