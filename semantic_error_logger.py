@@ -1,5 +1,5 @@
 from utils import *
-from scanner import Scanner, Token, SymbolTableEntry, FunctionRecordEntry
+from scanner import FunctionRecordEntry
 
 
 class SemanticErrorLogger:
@@ -39,22 +39,14 @@ class SemanticErrorLogger:
             )
 
     def get_operand_type(self, operand):
-        # print(operand)
         if operand.startswith("#"):
             return "int"
         for record in self.scanner.SYMBOL_TABLE["id"]:
             if record.address == operand:
-                # print("+++++++++++++++")
-                # print("===============")
-                # print(operand)
-                # print(record)
-                # print("===============")
-                # print("+++++++++++++++")
                 return "array" if record.type == "int*" else record.type
         return "int"
 
     def break_check(self, break_stack, token):
-        # print(break_stack)
         if len(break_stack) <= 0 or BREAK not in break_stack:
             self.errors.append(
                 f"#{token.line_num}: Semantic Error! No 'repeat ... until' found for 'break'."
@@ -68,14 +60,7 @@ class SemanticErrorLogger:
             return
         operand_1_type = self.get_operand_type(operand_1)
         operand_2_type = self.get_operand_type(operand_2)
-        # print(operand_1, operand_2)
-        # print(operand_1_type, operand_2_type)
         if operand_1_type != operand_2_type:
-            # print(operand_1_type, operand_2_type)
-            # print(operand_1, operand_2)
-            # print(f"#{token.line_num}: Semantic Error! Type mismatch in operands, Got"
-            # f" {operand_2_type} instead of {operand_1_type}.")
-            # TODO: we need to handle array types
             self.errors.append(
                 f"#{token.line_num}: Semantic Error! Type mismatch in operands, Got"
                 f" {operand_2_type} instead of {operand_1_type}."

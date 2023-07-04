@@ -1,5 +1,4 @@
 from utils import *
-from scanner import Scanner, Token
 from codegen import CodeGenerator
 
 START_PRODUCTION_RULE = "Program"
@@ -53,7 +52,6 @@ class Parser:
 
     def get_next_token(self):
         token = self.scanner.get_next_token()
-        # print(token)
         while token is None or token.type == TokenType.WHITESPACE or token.type == TokenType.COMMENT:
             token = self.get_next_token()
         return token
@@ -87,7 +85,6 @@ class Parser:
         while self.stack[-1][0] != "$":
             current_expression = self.stack[-1][0]
 
-            # TODO: check if current_expression is action symbol or not
             if current_expression.startswith("#"):
                 self.code_generator.call_routine(current_expression, token)
                 self.stack.pop()

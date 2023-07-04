@@ -1,7 +1,6 @@
 from utils import *
 
 
-# token class
 class Token:
     def __init__(self, token_type, value, line_num):
         self.type = token_type
@@ -45,6 +44,7 @@ class FunctionRecordEntry(SymbolTableEntry):
         self.return_value = return_value
         self.index = index
         self.args = symbol_table[args_start + 1:]
+        self.temp_vars = []
 
     @staticmethod
     def empty_instance():
@@ -109,7 +109,6 @@ class Scanner:
         return self.lines[self.curser]
 
     def get_symbol_token(self, char):
-        # lookahead for = and ==
         if char == "=":
             if self.curser + 1 < len(self.lines) and self.lines[self.curser + 1] == "=":
                 self.curser += 1
@@ -123,7 +122,6 @@ class Scanner:
                 char += self.lines[self.curser + 1]
                 self.curser += 1
                 return Token(TokenType.INVALID, char, self.line_num), True
-        # handle the unmatched comment
         if (
                 char == "*"
                 and self.curser + 1 < len(self.lines)
@@ -148,12 +146,11 @@ class Scanner:
             char = self.get_current_char()
             token_type = get_token_type(char)
 
-            # check for the next char, if it is a symbol or whitespace, then return the token
             if token_type == TokenType.NUM:
                 num += char
             elif token_type == TokenType.WHITESPACE or token_type == TokenType.SYMBOL:
                 return Token(TokenType.NUM, num, self.line_num), False
-            else:  # if it is invalid, then return the token and add the error
+            else:
                 num += char
                 self.curser += 1
                 return Token(TokenType.INVALID, num, self.line_num), True
@@ -168,7 +165,6 @@ class Scanner:
             char = self.get_current_char()
             token_type = get_token_type(char)
 
-            # check for the next char, if it is a symbol or whitespace, then return the token
             if token_type == TokenType.IDorKEYWORD or token_type == TokenType.NUM:
                 id_or_keyword += char
             elif token_type == TokenType.WHITESPACE or token_type == TokenType.SYMBOL:
@@ -215,12 +211,11 @@ class Scanner:
         current_char = self.get_current_char()
         token_type = get_token_type(current_char)
 
-        # if the token is a whitespace, then skip it and get the next token
         if token_type == TokenType.WHITESPACE:
             self.curser += 1
             if (
                     current_char == "\n"
-            ):  # if the char is a new line, then increment the line number
+            ):
                 self.line_num += 1
             return self.get_next_token()
 

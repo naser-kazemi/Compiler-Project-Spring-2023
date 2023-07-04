@@ -1,7 +1,6 @@
-# token types
-from collections import OrderedDict, defaultdict
 from enum import Enum
 import json
+import anytree
 from anytree import Node, RenderTree
 
 
@@ -16,7 +15,6 @@ class TokenType(Enum):
     INVALID = "INVALID"
     UNMATCHED_COMMENT = "UNMATCHED_COMMENT"
 
-    # reserved words
     IF = "if"
     ELSE = "else"
     VOID = "void"
@@ -30,7 +28,6 @@ class TokenType(Enum):
         return self.value
 
 
-# write lexical errors
 def write_lexical_errors(scanner, output_file):
     with open(output_file + "lexical_errors.txt", "w") as f:
         if len(scanner.LEXICAL_ERRORS) == 0:
@@ -43,7 +40,6 @@ def write_lexical_errors(scanner, output_file):
                 f.write("\n")
 
 
-# write symbol table
 def write_symbol_table(scanner, output_file):
     with open(output_file + "symbol_table.txt", "w") as f:
         symbols = scanner.SYMBOL_TABLE["keyword"].copy()
@@ -261,12 +257,3 @@ BREAK = "BREAK"
 
 def last_index_of(lst, item):
     return len(lst) - 1 - lst[::-1].index(item)
-
-
-if __name__ == "__main__":
-    # with open("assets/rules.json", 'w') as f:
-    #     json.dump(rule_dict, f)
-    rules = convert_grammar_to_rule_dict("assets/grammar.txt")
-    rule_dict = convert_grammar_to_rule_dict("assets/grammar_with_actions.txt")
-    # check if rules and rule_dict are the same
-    print(rule_dict)
