@@ -2,6 +2,7 @@ from enum import Enum
 import json
 import anytree
 from anytree import Node, RenderTree
+from collections import OrderedDict
 
 
 class TokenType(Enum):
@@ -243,7 +244,7 @@ class Operation(Enum):
         return self.__repr__()
 
 
-OPERATIONS: dict[str, Operation] = {
+OPERATIONS = {
     "+": Operation.Add,
     "*": Operation.Mult,
     "-": Operation.Sub,
