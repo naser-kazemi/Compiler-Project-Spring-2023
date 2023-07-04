@@ -1,6 +1,7 @@
 from utils import *
 from scanner import Scanner
 from parser_module import Parser
+import pickle
 import sys
 
 if __name__ == "__main__":
@@ -12,7 +13,8 @@ if __name__ == "__main__":
         input_dir = sys.argv[1] + "/"
         output_dir = "output/" + sys.argv[2] + "/"
     scanner = Scanner(input_dir + "input.txt")
-    rule_dict = convert_grammar_to_rule_dict("assets/grammar_with_actions.txt")
+    # rule_dict = convert_grammar_to_rule_dict("assets/grammar_with_actions.txt")
+    rule_dict = pickle.load(open("assets/grammar_with_actions.pkl", "rb"))
     parser = Parser(scanner, rule_dict)
     parser.parse()
 
@@ -28,7 +30,7 @@ if __name__ == "__main__":
             output.write("The output code has not been generated.")
         else:
             program_block = parser.code_generator.program_block.instructions
-            program_block = [x for x in program_block if x is not None]
+            # program_block = [x for x in program_block if x is not None]
             for i, instruction in enumerate(program_block):
                 output.write(
                     f"{i}\t{instruction}\n")

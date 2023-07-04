@@ -255,6 +255,9 @@ OPERATIONS: dict[str, Operation] = {
     "<": Operation.Lt,
 }
 
+RETURN = "RETURN"
+BREAK = "BREAK"
+
 
 def last_index_of(lst, item):
     return len(lst) - 1 - lst[::-1].index(item)

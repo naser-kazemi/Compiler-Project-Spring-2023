@@ -12,7 +12,7 @@ rm -rif output/*
 rm -rif diff/*
 
 # test_directory variable contains the path to the directory containing the test files
-test_directory="PA4_testcases"
+test_directory="PA3_testcases"
 # iterate through all folders in the test_directory
 for folder in $test_directory/*; do
     # if the folder is not a directory, skip it

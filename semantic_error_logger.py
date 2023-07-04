@@ -55,7 +55,7 @@ class SemanticErrorLogger:
 
     def break_check(self, break_stack, token):
         # print(break_stack)
-        if len(break_stack) <= 0 or "BREAK" not in break_stack:
+        if len(break_stack) <= 0 or BREAK not in break_stack:
             self.errors.append(
                 f"#{token.line_num}: Semantic Error! No 'repeat ... until' found for 'break'."
             )

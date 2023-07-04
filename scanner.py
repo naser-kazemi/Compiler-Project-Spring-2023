@@ -250,7 +250,7 @@ class Scanner:
                     self.get_type_from_symbol_table(token),
                     token.line_num,
                 )
-                if name not in self.SYMBOL_TABLE["id"] and token_type == TokenType.ID:
+                if token_type == TokenType.ID:
                     self.SYMBOL_TABLE["names"].append(SymbolTableEntry(name, token_type, None, None))
                 return Token(token_type, name, line_num)
             self.add_lexical_error(token, (token.value, "Invalid input"))

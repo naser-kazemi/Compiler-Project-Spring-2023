@@ -1,6 +1,6 @@
 from utils import *
 from pb import Instruction, ProgramBlock
-from semantic_stack import StackEntry, SemanticStack
+from semantic_stack import StackEntry, SemanticStack, ReturnStackEntry, ReturnStack
 from semantic_error_logger import SemanticErrorLogger
 from scanner import Scanner, Token, SymbolTableEntry, FunctionRecordEntry
 
@@ -12,14 +12,15 @@ class CodeGenerator:
         self.scanner = scanner
         self.error_logger = SemanticErrorLogger(self.scanner)
         self.break_stack = []
-        self.return_stack = []
+        # self.return_stack = []
+        self.return_stack = ReturnStack()
         self.index = 0
         self.current_scope = 0
-        self.temp_address = 500
+        self.temp_address = 10000
         self.token = None
 
     def call_routine(self, name, token):
-        # print(f"Calling {name} routine")
+        # print(f"Calling {name} routine with token {token}")
         # print(self.semantic_stack)
         # print(self.scanner.SYMBOL_TABLE["id"])
         name = name.replace("#", "")
@@ -44,7 +45,7 @@ class CodeGenerator:
         if item == "output":
             return item
         for record in self.scanner.SYMBOL_TABLE["id"][::-1]:
-            if record.id == item:
+            if record.id == item and record.scope <= self.current_scope:
                 if isinstance(record, FunctionRecordEntry):
                     return record
                 return record.address
@@ -124,7 +125,7 @@ class CodeGenerator:
 
     def mult(self, token):
         result = self.get_temp()
-        operand2, operand1 = self.semantic_stack.pop(), self.semantic_stack.pop()
+        operand1, operand2 = self.semantic_stack.pop(), self.semantic_stack.pop()
         self.error_logger.type_mismatch(token, operand1, operand2, mult=True)
         self.insert_instruction(Operation.Mult, operand1, operand2, result)
         # print(f"mult: {result}")
@@ -140,10 +141,11 @@ class CodeGenerator:
 
     def arr_idx(self):
         idx, arr_addr = self.semantic_stack.pop(), self.semantic_stack.pop()
+        # print(idx, arr_addr)
         temp, result = self.get_temp(), self.get_temp()
 
         self.insert_instruction(Operation.Mult, "#4", idx, temp)
-        self.insert_instruction(Operation.Assign, str(arr_addr), result)
+        self.insert_instruction(Operation.Assign, arr_addr, result)
         self.insert_instruction(Operation.Add, result, temp, result)
 
         self.semantic_stack.push(f"@{result}")
@@ -157,13 +159,13 @@ class CodeGenerator:
 
     def jmp(self):
         dest = self.semantic_stack.pop()
-        self.program_block[int(dest)] = Instruction(Operation.Jp, str(self.index), "", "")
+        self.program_block[int(dest)] = Instruction(Operation.Jp, self.index, "", "")
 
     def clean_up(self):
         self.semantic_stack.pop()
 
     def new_break(self):
-        self.break_stack.append("BREAK")
+        self.break_stack.append(BREAK)
 
     def until(self):
         operand1, operand2 = self.semantic_stack.pop(), self.semantic_stack.pop()
@@ -174,7 +176,7 @@ class CodeGenerator:
 
     def end_break(self):
         # print("end_break")
-        last_block = last_index_of(self.break_stack, "BREAK")
+        last_block = last_index_of(self.break_stack, BREAK)
         for record in self.break_stack[last_block + 1:]:
             self.program_block[record] = Instruction(Operation.Jp, str(self.index), "", "")
         self.break_stack = self.break_stack[:last_block]
@@ -186,7 +188,7 @@ class CodeGenerator:
         # print(dest)
         # print(len(self.program_block.instructions))
         self.program_block[dest] = Instruction(
-            Operation.Jpf, src, str(self.index + 1), ""
+            Operation.Jpf, src, self.index + 1, ""
         )
         self.semantic_stack.push(self.index)
         self.add_index()
@@ -213,6 +215,7 @@ class CodeGenerator:
         self.scanner.SYMBOL_TABLE["id"].append(
             SymbolTableEntry("Args ->", "", "", self.current_scope)
         )
+        # self.current_scope += 1
 
     def find_args_start(self):
         for i, entry in enumerate(self.scanner.SYMBOL_TABLE["id"]):
@@ -222,7 +225,6 @@ class CodeGenerator:
 
     def create_record(self):
         return_address = self.get_temp()
-        index = self.index
         return_value = self.get_temp()
         self.semantic_stack.push(return_value)
         self.semantic_stack.push(return_address)
@@ -232,7 +234,7 @@ class CodeGenerator:
             return_address,
             return_value,
             func_id,
-            index,
+            self.index - 1,
             self.scanner.SYMBOL_TABLE["id"],
             args_start,
             self.current_scope,
@@ -241,17 +243,34 @@ class CodeGenerator:
         self.scanner.SYMBOL_TABLE["id"].pop(args_start)
         self.scanner.SYMBOL_TABLE["id"].append(function_record)
 
+        # self.return_stack.append(RETURN)
+        self.return_stack.push_return(func_id)
+        # self.current_scope -= 1
+
     def end_func(self):
-        self.semantic_stack.pop(3)
+
+        last_func, last_func_idx = self.return_stack.last_return()
+        return_address, return_value = self.semantic_stack.pop(), self.semantic_stack.pop()
+        for entry in self.return_stack[last_func_idx + 1:]:
+            # print(entry.index, entry.value)
+            self.program_block[entry.index] = Instruction(Operation.Assign, str(entry.value), str(return_value), "")
+            self.program_block[entry.index + 1] = Instruction(Operation.Jp, f"@{return_address}", "", "")
+        self.return_stack.remove_last_func()
+
+        if self.semantic_stack.pop() != "main":
+            return_address = self.semantic_stack.top()
+            self.insert_instruction(Operation.Jp, f"@{return_address}")
+
         dest = self.semantic_stack.pop()
-        address = self.get_temp()
         for record in self.scanner.SYMBOL_TABLE["id"][::-1]:
             if isinstance(record, FunctionRecordEntry):
                 if record.id == "main":
-                    self.program_block[dest] = Instruction(Operation.Assign, "#0", address, "")
+                    self.program_block[dest] = Instruction(Operation.Assign, "#0", self.get_temp(), "")
                     return
                 break
+        # print(dest)
         self.program_block[dest] = Instruction(Operation.Jp, str(self.index), "", "")
+        # self.current_scope -= 1
 
     def func_call(self, token):
         if self.semantic_stack.top() == "output":
@@ -273,31 +292,52 @@ class CodeGenerator:
             self.error_logger.parameter_type_matching(token, var, arg, i + 1)
             self.insert_instruction(Operation.Assign, arg, var.address)
 
+        # print(function_record)
         self.insert_instruction(
             Operation.Assign, f"#{self.index + 2}", function_record.return_address
         )
-        self.insert_instruction(Operation.Jp, function_record.index)
+        # print(function_record)
+        self.insert_instruction(Operation.Jp, function_record.index + 1)
         result = self.get_temp()
         self.insert_instruction(Operation.Assign, function_record.return_value, result)
         self.semantic_stack.push(result)
 
-    def save_return(self):
-        self.return_stack.append((self.index, self.semantic_stack.pop()))
+    def return_func(self):
+        self.return_stack.push("", self.index, self.semantic_stack.pop())
+        # print(self.return_stack.top())
+        self.add_index(2)
+
+    def save_return(self, token):
+        last_return = self.return_stack.top()
+        if last_return.func_id == "main" or last_return.index + 2 == self.index:
+            return
+        self.return_stack.push("", self.index, f"#{self.index}")
+        # print(self.return_stack.top())
         self.add_index(2)
 
     def push_scope(self):
         self.current_scope += 1
 
+    def dec_scope(self):
+        self.current_scope -= 1
+
     def pop_scope(self):
+        # print(self.current_scope)
         symbol_table = self.scanner.SYMBOL_TABLE["id"].copy()
+        left_overs = []
         for record in symbol_table[::-1]:
             # print(record)
-            if record.scope == self.current_scope:
-                # print(record)
-                self.scanner.SYMBOL_TABLE["id"].pop()
+            deleted = self.scanner.SYMBOL_TABLE["id"].pop()
+            if record.scope != self.current_scope:
+                left_overs.append(deleted)
+                continue
+            # print("++++++++++++++++++")
+            # print(deleted)
+            # print("++++++++++++++++++")
+        self.scanner.SYMBOL_TABLE["id"].extend(left_overs[::-1])
         self.current_scope -= 1
 
     def push_idx(self):
-        self.semantic_stack.push(self.index)
+        self.semantic_stack.push(f"#{self.index}")
 
     # TODO: Semantic checks

@@ -54,7 +54,7 @@ class Parser:
     def get_next_token(self):
         token = self.scanner.get_next_token()
         # print(token)
-        while token.type == TokenType.WHITESPACE or token.type == TokenType.COMMENT:
+        while token is None or token.type == TokenType.WHITESPACE or token.type == TokenType.COMMENT:
             token = self.get_next_token()
         return token
 

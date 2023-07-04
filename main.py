@@ -1,3 +1,5 @@
+from utils import *
+
 class Dummy:
 
     def call_routine(self, name, token):
@@ -16,6 +18,8 @@ class Dummy:
 
 
 if __name__ == "__main__":
-    d = Dummy()
-    d.call_routine("test", "token is test")
-    d.call_routine("test2", "token is test")
+    import pickle
+     # = open("assets/grammar_with_actions.txt")
+    # pickle.dump(file.readlines(), open("assets/grammar_with_actions.pkl", "wb"))
+    rule = convert_grammar_to_rule_dict("assets/grammar.txt")
+    pickle.dump(rule, open("assets/grammar.pkl", "wb"))

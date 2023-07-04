@@ -7,7 +7,7 @@ Declaration-prime -> Fun-declaration-prime
 Declaration-prime -> Var-declaration-prime
 Var-declaration-prime -> ; #def_var
 Var-declaration-prime -> [ #pnum NUM ] ; #def_arr
-Fun-declaration-prime -> #start_params ( Params ) #create_record Compound-stmt #end_func
+Fun-declaration-prime -> #start_params #push_scope ( Params ) #dec_scope #create_record Compound-stmt #save_return #end_func
 Type-specifier -> int
 Type-specifier -> void
 Params -> #get_id int #pid ID #def_var Param-prime Param-list
@@ -30,7 +30,7 @@ Expression-stmt -> break #break_loop ;
 Expression-stmt -> ;
 Selection-stmt -> if ( Expression ) #save Statement else #jpf_save Statement #jmp
 Iteration-stmt -> repeat #label #new_break Statement until ( Expression ) #until #end_break
-Return-stmt -> return Return-stmt-prime #save_return
+Return-stmt -> return Return-stmt-prime #return_func
 Return-stmt-prime -> #push_idx ;
 Return-stmt-prime -> Expression ;
 Expression -> Simple-expression-zegond
